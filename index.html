@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Food Safety Checker</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0f1117;--surface:#1a1d27;--surface2:#242734;--surface3:#2e3244;
+    --text:#e8eaed;--text2:#9aa0b0;--text3:#6b7185;
+    --red:#ff4757;--red-bg:rgba(255,71,87,.12);--red-border:rgba(255,71,87,.3);
+    --orange:#ff9f43;--orange-bg:rgba(255,159,67,.12);--orange-border:rgba(255,159,67,.3);
+    --yellow:#feca57;--yellow-bg:rgba(254,202,87,.12);--yellow-border:rgba(254,202,87,.3);
+    --green:#2ed573;--green-bg:rgba(46,213,115,.12);--green-border:rgba(46,213,115,.3);
+    --blue:#4facfe;--blue-bg:rgba(79,172,254,.12);
+    --radius:12px;--radius-sm:8px;
+  }
+  html{font-size:16px;-webkit-text-size-adjust:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;padding:0 0 100px 0;overflow-x:hidden}
+  .container{max-width:600px;margin:0 auto;padding:16px}
+
+  /* Header */
+  header{text-align:center;padding:24px 0 8px}
+  header h1{font-size:1.6rem;font-weight:700;margin-bottom:4px}
+  header .subtitle{color:var(--text2);font-size:.85rem}
+  .emergency-banner{background:var(--red-bg);border:1px solid var(--red-border);border-radius:var(--radius-sm);padding:10px 14px;margin:12px 0;font-size:.8rem;color:var(--red);text-align:center;line-height:1.4}
+  .emergency-banner a{color:var(--red);font-weight:700;text-decoration:underline}
+
+  /* Tabs */
+  .tabs{display:flex;gap:4px;margin:16px 0 12px;background:var(--surface);border-radius:var(--radius);padding:4px}
+  .tab{flex:1;padding:10px 8px;border:none;background:transparent;color:var(--text2);font-size:.82rem;font-weight:500;border-radius:var(--radius-sm);cursor:pointer;transition:all .2s}
+  .tab.active{background:var(--surface3);color:var(--text)}
+  .tab:hover{color:var(--text)}
+  .tab-content{display:none}
+  .tab-content.active{display:block}
+
+  /* Input area */
+  .input-group{position:relative;margin-bottom:16px}
+  .input-group input,.input-group textarea{width:100%;background:var(--surface);border:2px solid var(--surface3);border-radius:var(--radius);padding:14px 16px;color:var(--text);font-size:1rem;font-family:inherit;outline:none;transition:border-color .2s}
+  .input-group textarea{min-height:120px;resize:vertical;line-height:1.5}
+  .input-group input:focus,.input-group textarea:focus{border-color:var(--blue)}
+  .input-group input::placeholder,.input-group textarea::placeholder{color:var(--text3)}
+  .clear-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:var(--surface3);border:none;color:var(--text2);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:1.1rem;display:none;align-items:center;justify-content:center;line-height:1}
+  .clear-btn.show{display:flex}
+  .input-group:has(textarea) .clear-btn{top:20px;transform:none}
+
+  /* Results */
+  .results{display:flex;flex-direction:column;gap:8px}
+  .result-card{border-radius:var(--radius);padding:14px 16px;display:flex;gap:12px;align-items:flex-start;animation:slideIn .25s ease}
+  @keyframes slideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .result-card.deadly{background:var(--red-bg);border:1px solid var(--red-border)}
+  .result-card.dangerous{background:var(--orange-bg);border:1px solid var(--orange-border)}
+  .result-card.caution{background:var(--yellow-bg);border:1px solid var(--yellow-border)}
+  .result-card.safe{background:var(--green-bg);border:1px solid var(--green-border)}
+  .result-icon{font-size:1.5rem;flex-shrink:0;line-height:1.2}
+  .result-body{flex:1;min-width:0}
+  .result-title{font-weight:600;font-size:.95rem;margin-bottom:2px}
+  .result-detail{font-size:.82rem;color:var(--text2);line-height:1.4}
+  .deadly .result-title{color:var(--red)}
+  .dangerous .result-title{color:var(--orange)}
+  .caution .result-title{color:var(--yellow)}
+  .safe .result-title{color:var(--green)}
+  .result-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+  .badge-deadly{background:var(--red);color:#fff}
+  .badge-dangerous{background:var(--orange);color:#000}
+  .badge-caution{background:var(--yellow);color:#000}
+  .badge-safe{background:var(--green);color:#000}
+
+  /* Dishes */
+  .dishes-grid{display:flex;flex-direction:column;gap:8px}
+  .dish-card{background:var(--surface);border:1px solid var(--surface3);border-radius:var(--radius);padding:14px 16px;cursor:pointer;transition:all .2s}
+  .dish-card:hover{border-color:var(--blue);background:var(--surface2)}
+  .dish-card:active{transform:scale(.98)}
+  .dish-name{font-weight:600;font-size:.95rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+  .dish-status{font-size:.75rem;padding:2px 8px;border-radius:20px;font-weight:600}
+  .dish-detail{font-size:.8rem;color:var(--text2);line-height:1.4}
+  .dish-section{margin-bottom:16px}
+  .dish-section h3{font-size:.8rem;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;padding-left:4px}
+
+  /* Legend */
+  .legend{background:var(--surface);border-radius:var(--radius);padding:16px;margin-top:16px}
+  .legend h3{font-size:.85rem;font-weight:600;margin-bottom:10px;color:var(--text2)}
+  .legend-item{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:.82rem}
+  .legend-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+
+  /* Info section */
+  .info-card{background:var(--surface);border-radius:var(--radius);padding:16px;margin-top:12px}
+  .info-card h3{font-size:.9rem;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .info-card ul{padding-left:18px;font-size:.82rem;color:var(--text2);line-height:1.8}
+  .safe-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .safe-tag{background:var(--green-bg);border:1px solid var(--green-border);color:var(--green);padding:4px 10px;border-radius:20px;font-size:.75rem;font-weight:500}
+
+  /* Search filter for dishes */
+  .dish-search{margin-bottom:12px}
+  .dish-search input{width:100%;background:var(--surface);border:2px solid var(--surface3);border-radius:var(--radius);padding:10px 14px;color:var(--text);font-size:.9rem;outline:none;transition:border-color .2s}
+  .dish-search input:focus{border-color:var(--blue)}
+  .dish-search input::placeholder{color:var(--text3)}
+
+  .empty-state{text-align:center;padding:40px 20px;color:var(--text3)}
+  .empty-state .icon{font-size:2.5rem;margin-bottom:8px}
+  .empty-state p{font-size:.85rem;line-height:1.5}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>🛡️ Food Safety Checker</h1>
+    <p class="subtitle">Lebensmittel-Sicherheitsprüfung</p>
+  </header>
+
+  <div class="emergency-banner">
+    🚨 Im Notfall sofort <a href="tel:112">112 anrufen</a> — Anaphylaxie-Risiko bei Eiern &amp; Nüssen
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="single" onclick="switchTab('single')">Einzelprüfung</button>
+    <button class="tab" data-tab="multi" onclick="switchTab('multi')">Zutatenliste</button>
+    <button class="tab" data-tab="dishes" onclick="switchTab('dishes')">Gerichte</button>
+    <button class="tab" data-tab="info" onclick="switchTab('info')">Info</button>
+  </div>
+
+  <!-- Single Check -->
+  <div class="tab-content active" id="tab-single">
+    <div class="input-group">
+      <input type="text" id="singleInput" placeholder="Zutat oder Gericht eingeben…" autocomplete="off" autocapitalize="none" spellcheck="false">
+      <button class="clear-btn" id="clearSingle" onclick="clearInput('single')">&times;</button>
+    </div>
+    <div class="results" id="singleResults"></div>
+    <div class="empty-state" id="singleEmpty">
+      <div class="icon">🔍</div>
+      <p>Gib eine Zutat oder ein Gericht ein,<br>z.B. „Ei", „Caesar Salad", „Walnuss"</p>
+    </div>
+  </div>
+
+  <!-- Multi Check -->
+  <div class="tab-content" id="tab-multi">
+    <div class="input-group">
+      <textarea id="multiInput" placeholder="Zutatenliste einfügen (eine pro Zeile oder komma-getrennt)…&#10;&#10;z.B.:&#10;Mehl, Zucker, Butter, Eier, Vanille"></textarea>
+      <button class="clear-btn" id="clearMulti" onclick="clearInput('multi')">&times;</button>
+    </div>
+    <div class="results" id="multiResults"></div>
+    <div class="empty-state" id="multiEmpty">
+      <div class="icon">📋</div>
+      <p>Füge eine vollständige Zutatenliste ein<br>und erhalte eine Analyse für jede Zutat</p>
+    </div>
+  </div>
+
+  <!-- Common Dishes -->
+  <div class="tab-content" id="tab-dishes">
+    <div class="dish-search">
+      <input type="text" id="dishSearch" placeholder="Gericht suchen…" oninput="filterDishes()">
+    </div>
+    <div class="dishes-grid" id="dishesGrid"></div>
+  </div>
+
+  <!-- Info -->
+  <div class="tab-content" id="tab-info">
+    <div class="info-card">
+      <h3>🚨 Lebensbedrohlich</h3>
+      <ul>
+        <li><strong>Eier (Eggs)</strong> — in jeder Form: Mayonnaise, Meringue, Pasta mit Ei, Brioche, Baiser, Eierlikör, Rührei, Spiegelei…</li>
+        <li><strong>Nüsse (Nuts)</strong> — ALLE außer Erdnüsse &amp; Mandeln: Walnuss, Haselnuss, Cashew, Pistazie, Pekanuss, Macadamia, Paranuss, Maronen…</li>
+      </ul>
+    </div>
+    <div class="info-card">
+      <h3>⚠️ Schwellung &amp; Atemnot</h3>
+      <ul>
+        <li>Geflügel (Huhn, Pute, Ente, Gans…)</li>
+        <li>Avocado</li>
+        <li>Kiwi</li>
+        <li>Aubergine (Eggplant)</li>
+        <li>Banane (Banana)</li>
+        <li>Milch (Milk) — alle Milchprodukte</li>
+      </ul>
+    </div>
+    <div class="info-card">
+      <h3>😐 Verdauungsprobleme (kleine Mengen OK)</h3>
+      <ul>
+        <li>Zu viel Käse (Cheese)</li>
+        <li>IBS/Reizdarm — Low-FODMAP hilfreich</li>
+        <li>Hohe FODMAP-Lebensmittel: Knoblauch, Zwiebeln, Bohnen, Weizen (große Mengen), Äpfel, Birnen…</li>
+      </ul>
+    </div>
+    <div class="info-card">
+      <h3>✅ Sichere Ausnahmen</h3>
+      <div class="safe-list">
+        <span class="safe-tag">Erdnüsse / Peanuts ✅</span>
+        <span class="safe-tag">Mandeln / Almonds ✅</span>
+      </div>
+    </div>
+    <div class="legend">
+      <h3>Farblegende</h3>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--red)"></span> Lebensgefahr — Niemals essen</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--orange)"></span> Gefährlich — Schwellung/Atemnot möglich</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--yellow)"></span> Vorsicht — Verdauungsprobleme möglich</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--green)"></span> Sicher — Kann bedenkenlos gegessen werden</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── Allergy Database ───
+const DEADLY = [
+  {
+    names: ['ei','eier','egg','eggs','eigelb','eiweiß','eiweiss','yolk','egg white','egg yolk','hühnerei','huehnerei','vollei','trockenei','flüssigei','eipulver','egg powder'],
+    label: 'Eier / Eggs',
+    detail: 'Lebensbedrohliche Allergie — in jeder Form vermeiden!'
+  },
+  {
+    names: ['walnuss','walnüsse','walnut','walnuts','haselnuss','haselnüsse','hazelnut','hazelnuts','cashew','cashews','cashewkern','pistazie','pistazien','pistachio','pistachios',
+            'pekanuss','pecan','pecans','macadamia','paranuss','brazil nut','brazil nuts','nuss','nüsse','nuesse','nut','nuts','tree nut','tree nuts','nussmischung','mixed nuts',
+            'maronen','kastanien','chestnut','chestnuts','kokosnuss','coconut','pinienkern','pinienkerne','pine nut','pine nuts','nougat','nutella','gianduja','praline','marzipan'],
+    exclude: ['erdnuss','erdnüsse','erdnuesse','peanut','peanuts','mandel','mandeln','almond','almonds','muskatnuss','muskat','nutmeg','kokosnuss','coconut','kokos','kokosmilch','kokosflocken','kokosöl','coconut milk','coconut oil','coconut cream','coconut flakes'],
+    label: 'Nüsse / Nuts',
+    detail: 'Lebensbedrohliche Allergie — ALLE Nüsse außer Erdnüsse & Mandeln!'
+  }
+];
+
+const DANGEROUS = [
+  {
+    names: ['huhn','hühnchen','hähnchen','haehnchen','chicken','hendl','poulet','hühnerbrühe','chicken broth','chicken stock','geflügel','gefluegel','poultry',
+            'pute','truthahn','turkey','ente','duck','gans','goose','wachtel','quail','fasan','pheasant','hühnerbrust','chicken breast','hühnerkeule','chicken thigh','chicken wing','hühnerflügel'],
+    label: 'Geflügel / Poultry',
+    detail: 'Kann Halsschwellung und Atemnot verursachen!'
+  },
+  {
+    names: ['avocado','guacamole'],
+    label: 'Avocado',
+    detail: 'Kann Halsschwellung und Atemnot verursachen!'
+  },
+  {
+    names: ['kiwi','kiwis','kiwifruit'],
+    label: 'Kiwi',
+    detail: 'Kann Halsschwellung und Atemnot verursachen!'
+  },
+  {
+    names: ['aubergine','auberginen','eggplant','eggplants'],
+    label: 'Aubergine / Eggplant',
+    detail: 'Kann Halsschwellung und Atemnot verursachen!'
+  },
+  {
+    names: ['banane','bananen','banana','bananas','plantain'],
+    label: 'Banane / Banana',
+    detail: 'Kann Halsschwellung und Atemnot verursachen!'
+  },
+  {
+    names: ['milch','milk','vollmilch','whole milk','magermilch','skim milk','buttermilch','buttermilk','sahne','cream','rahm','schlagsahne','whipped cream',
+            'schmand','sour cream','saure sahne','crème fraîche','creme fraiche','joghurt','yoghurt','yogurt','quark','kefir','molke','whey','laktose','lactose',
+            'milchpulver','milk powder','kondensmilch','condensed milk','evaporated milk','butter','ghee','käse','kaese','cheese',
+            'ricotta','mascarpone','mozzarella','parmesan','gouda','emmentaler','cheddar','brie','camembert','feta','gruyère','gruyere',
+            'cream cheese','frischkäse','frischkaese','hüttenkäse','cottage cheese','ziegenkäse','goat cheese','schafskäse','sheep cheese'],
+    label: 'Milch / Milk',
+    detail: 'Kann Halsschwellung und Atemnot verursachen!'
+  }
+];
+
+const CAUTION = [
+  {
+    names: ['käse','kaese','cheese','hartkäse','hard cheese','weichkäse','soft cheese','schmelzkäse','processed cheese',
+            'ricotta','mascarpone','mozzarella','parmesan','gouda','emmentaler','cheddar','brie','camembert','feta','gruyère','gruyere',
+            'cream cheese','frischkäse','frischkaese','hüttenkäse','cottage cheese','ziegenkäse','goat cheese','schafskäse','sheep cheese',
+            'raclette','fondue'],
+    label: 'Käse / Cheese',
+    detail: 'Kleine Mengen OK — größere Mengen können Verdauungsprobleme verursachen'
+  },
+  {
+    names: ['knoblauch','garlic','zwiebel','zwiebeln','onion','onions','schalotte','shallot','lauch','leek','frühlingszwiebel','spring onion','schnittlauch','chives'],
+    label: 'Zwiebeln/Knoblauch (High FODMAP)',
+    detail: 'IBS/Reizdarm — kann in größeren Mengen Probleme verursachen'
+  },
+  {
+    names: ['bohne','bohnen','bean','beans','linse','linsen','lentil','lentils','kichererbse','kichererbsen','chickpea','chickpeas','erbse','erbsen','pea','peas'],
+    label: 'Hülsenfrüchte (High FODMAP)',
+    detail: 'IBS/Reizdarm — kann Blähungen und Beschwerden verursachen'
+  },
+  {
+    names: ['apfel','äpfel','apple','apples','birne','birnen','pear','pears','mango','mangos','wassermelone','watermelon','kirsche','kirschen','cherry','cherries',
+            'pfirsich','pfirsiche','peach','peaches','pflaume','pflaumen','plum','plums','nektarine','nectarine','aprikose','apricot'],
+    label: 'Obst (High FODMAP)',
+    detail: 'IBS/Reizdarm — kann in größeren Mengen Beschwerden verursachen'
+  },
+  {
+    names: ['weizen','wheat','roggen','rye','gerste','barley','dinkel','spelt','brot','bread','brötchen','roll','semmel','toast','pizza','pasta','nudel','nudeln','noodles','couscous','bulgur'],
+    label: 'Getreide/Weizen (FODMAP)',
+    detail: 'IBS — große Mengen Weizen können Probleme machen. Kleine Mengen meist OK.'
+  }
+];
+
+const SAFE_EXCEPTIONS = [
+  {
+    names: ['erdnuss','erdnüsse','erdnuesse','peanut','peanuts','erdnussbutter','peanut butter','erdnussöl','peanut oil'],
+    label: 'Erdnüsse / Peanuts ✅',
+    detail: 'Sicher! Erdnüsse sind KEINE Baumnüsse — kein Risiko.'
+  },
+  {
+    names: ['mandel','mandeln','almond','almonds','mandelmehl','almond flour','mandelmilch','almond milk','mandelmus','almond butter','mandelöl','almond oil'],
+    label: 'Mandeln / Almonds ✅',
+    detail: 'Sicher! Mandeln sind eine bestätigte Ausnahme.'
+  }
+];
+
+// ─── Hidden Ingredients in Common Dishes ───
+const DISH_DATABASE = [
+  // Deadly risks
+  {name:'Caesar Salad',de:'Caesar Salat',level:'deadly',reason:'Enthält Ei (im Dressing) und oft Parmesan (Milch)',triggers:['Eier','Milch']},
+  {name:'Carbonara',de:'Carbonara',level:'deadly',reason:'Enthält Ei (Eigelb), Käse (Parmesan/Pecorino) und oft Speck',triggers:['Eier','Milch']},
+  {name:'Tiramisu',de:'Tiramisu',level:'deadly',reason:'Enthält rohe Eier, Mascarpone (Milch)',triggers:['Eier','Milch']},
+  {name:'Mayonnaise',de:'Mayonnaise / Mayo',level:'deadly',reason:'Hauptbestandteil: Eier!',triggers:['Eier']},
+  {name:'Brioche',de:'Brioche',level:'deadly',reason:'Enthält Eier und Butter (Milch)',triggers:['Eier','Milch']},
+  {name:'Pancakes',de:'Pfannkuchen',level:'deadly',reason:'Enthält Eier und Milch',triggers:['Eier','Milch']},
+  {name:'Waffles',de:'Waffeln',level:'deadly',reason:'Enthält Eier und Milch',triggers:['Eier','Milch']},
+  {name:'French Toast',de:'Arme Ritter',level:'deadly',reason:'In Ei-Milch-Mischung getränkt',triggers:['Eier','Milch']},
+  {name:'Quiche',de:'Quiche',level:'deadly',reason:'Enthält Eier und Sahne/Milch',triggers:['Eier','Milch']},
+  {name:'Crêpes',de:'Crêpes',level:'deadly',reason:'Enthält Eier und Milch',triggers:['Eier','Milch']},
+  {name:'Meringue',de:'Baiser / Meringue',level:'deadly',reason:'Besteht aus Eiweiß!',triggers:['Eier']},
+  {name:'Hollandaise',de:'Sauce Hollandaise',level:'deadly',reason:'Enthält Eigelb und Butter',triggers:['Eier','Milch']},
+  {name:'Béarnaise',de:'Sauce Béarnaise',level:'deadly',reason:'Enthält Eigelb und Butter',triggers:['Eier','Milch']},
+  {name:'Custard / Pudding',de:'Pudding / Vanillesoße',level:'deadly',reason:'Enthält Eier und Milch',triggers:['Eier','Milch']},
+  {name:'Egg Fried Rice',de:'Gebratener Reis mit Ei',level:'deadly',reason:'Enthält Ei',triggers:['Eier']},
+  {name:'Pasta (fresh)',de:'Frische Pasta',level:'deadly',reason:'Frische Pasta enthält fast immer Eier!',triggers:['Eier']},
+  {name:'Ramen (traditional)',de:'Ramen (traditionell)',level:'deadly',reason:'Nudeln oft mit Ei, dazu oft Ei als Topping',triggers:['Eier']},
+  {name:'Cake / Kuchen',de:'Kuchen / Torte',level:'deadly',reason:'Enthält fast immer Eier und Milch/Butter',triggers:['Eier','Milch']},
+  {name:'Ice Cream',de:'Eiscreme / Speiseeis',level:'deadly',reason:'Kann Eier enthalten (Vanilleeis), enthält Milch. Oft Nüsse!',triggers:['Eier','Milch','Nüsse']},
+  {name:'Mousse au Chocolat',de:'Mousse au Chocolat',level:'deadly',reason:'Enthält Eier und Sahne. Oft mit Haselnüssen!',triggers:['Eier','Milch','Nüsse']},
+  {name:'Pesto',de:'Pesto',level:'deadly',reason:'Klassisch mit Pinienkernen (Nüsse!) und Parmesan (Milch)',triggers:['Nüsse','Milch']},
+  {name:'Baklava',de:'Baklava',level:'deadly',reason:'Enthält Nüsse (Walnüsse, Pistazien)!',triggers:['Nüsse']},
+  {name:'Brownie',de:'Brownie',level:'deadly',reason:'Enthält Eier, Butter, oft Walnüsse',triggers:['Eier','Milch','Nüsse']},
+  {name:'Granola / Müsli',de:'Granola / Müsli',level:'deadly',reason:'Enthält oft diverse Nüsse! Einzelne Zutaten prüfen.',triggers:['Nüsse']},
+  {name:'Marzipan',de:'Marzipan',level:'safe',reason:'Besteht aus Mandeln — Mandeln sind sicher! ✅ Aber Vorsicht: kann in Mischprodukten mit anderen Nüssen vorkommen.',triggers:['Mandeln (sicher)']},
+  {name:'Eierlikör',de:'Eierlikör',level:'deadly',reason:'Enthält Eier und oft Sahne!',triggers:['Eier','Milch']},
+  {name:'Aioli',de:'Aioli',level:'deadly',reason:'Traditionell mit Ei (wie Mayonnaise)',triggers:['Eier']},
+  {name:'Eggs Benedict',de:'Eggs Benedict',level:'deadly',reason:'Pochiertes Ei + Sauce Hollandaise (Ei + Butter)',triggers:['Eier','Milch']},
+  {name:'Soufflé',de:'Soufflé',level:'deadly',reason:'Hauptbestandteil: Eier',triggers:['Eier']},
+
+  // Dangerous
+  {name:'Chicken Nuggets',de:'Chicken Nuggets',level:'dangerous',reason:'Geflügel! Panade kann auch Ei enthalten.',triggers:['Geflügel','Eier']},
+  {name:'Chicken Curry',de:'Hähnchen Curry',level:'dangerous',reason:'Geflügel! Kann auch Joghurt/Sahne enthalten.',triggers:['Geflügel','Milch']},
+  {name:'Club Sandwich',de:'Club Sandwich',level:'dangerous',reason:'Enthält Hähnchen und oft Mayonnaise (Ei)',triggers:['Geflügel','Eier']},
+  {name:'Chicken Caesar Wrap',de:'Chicken Caesar Wrap',level:'deadly',reason:'Hähnchen + Caesar Dressing (Ei) + Parmesan (Milch)',triggers:['Geflügel','Eier','Milch']},
+  {name:'Duck / Ente',de:'Ente / Entenbraten',level:'dangerous',reason:'Geflügel!',triggers:['Geflügel']},
+  {name:'Turkey Sandwich',de:'Puten-Sandwich',level:'dangerous',reason:'Geflügel!',triggers:['Geflügel']},
+  {name:'Guacamole',de:'Guacamole',level:'dangerous',reason:'Hauptbestandteil: Avocado!',triggers:['Avocado']},
+  {name:'Sushi (some)',de:'Sushi (manche)',level:'dangerous',reason:'Avocado-Rollen! Auch: Tamago = Ei-Omelette',triggers:['Avocado','Eier']},
+  {name:'Smoothie Bowl',de:'Smoothie Bowl',level:'dangerous',reason:'Oft mit Banane, Kiwi, Avocado, Nüssen — alles prüfen!',triggers:['Banane','Kiwi','Nüsse']},
+  {name:'Banana Bread',de:'Bananenbrot',level:'dangerous',reason:'Banane + Eier + oft Walnüsse!',triggers:['Banane','Eier','Nüsse']},
+  {name:'Fruit Salad',de:'Obstsalat',level:'dangerous',reason:'Kann Kiwi und Banane enthalten — nachfragen!',triggers:['Kiwi','Banane']},
+  {name:'Moussaka',de:'Moussaka',level:'dangerous',reason:'Enthält Aubergine, Béchamel (Milch, evtl. Ei)',triggers:['Aubergine','Milch','Eier']},
+  {name:'Baba Ghanoush',de:'Baba Ghanoush',level:'dangerous',reason:'Hauptbestandteil: Aubergine!',triggers:['Aubergine']},
+  {name:'Milkshake',de:'Milchshake',level:'dangerous',reason:'Milch! Oft auch Eis (kann Ei enthalten)',triggers:['Milch','Eier']},
+  {name:'Cappuccino / Latte',de:'Cappuccino / Latte',level:'dangerous',reason:'Enthält Milch!',triggers:['Milch']},
+
+  // Safe dishes
+  {name:'Pad Thai',de:'Pad Thai',level:'deadly',reason:'Enthält oft Ei! Erdnüsse sind OK. Ohne Ei bestellen!',triggers:['Eier','Erdnüsse (sicher)']},
+  {name:'Steak',de:'Steak (Rind)',level:'safe',reason:'Rindfleisch ist sicher. Auf Beilagen achten!',triggers:[]},
+  {name:'Grilled Fish',de:'Gegrillter Fisch',level:'safe',reason:'Fisch ist grundsätzlich sicher. Auf Sauce/Panade achten!',triggers:[]},
+  {name:'Rice / Reis',de:'Reis',level:'safe',reason:'Reis pur ist sicher ✅',triggers:[]},
+  {name:'Pommes Frites',de:'Pommes Frites',level:'safe',reason:'Kartoffeln + Öl = sicher. Vorsicht bei Mayo als Dip!',triggers:[]},
+  {name:'Hummus',de:'Hummus',level:'safe',reason:'Kichererbsen + Tahini (Sesam) — grundsätzlich sicher. Große Mengen: FODMAP beachten.',triggers:[]},
+  {name:'Spaghetti Aglio e Olio',de:'Spaghetti Aglio e Olio',level:'safe',reason:'Trockene Pasta (ohne Ei) + Knoblauch + Olivenöl. Sicher wenn Pasta eifrei! Knoblauch: FODMAP beachten.',triggers:[]},
+  {name:'Bruschetta',de:'Bruschetta',level:'safe',reason:'Brot + Tomaten + Olivenöl. Sicher! ✅',triggers:[]},
+  {name:'Edamame',de:'Edamame',level:'safe',reason:'Sojabohnen — sicher ✅',triggers:[]},
+  {name:'Sashimi',de:'Sashimi',level:'safe',reason:'Roher Fisch pur — sicher ✅',triggers:[]},
+];
+
+// ─── Core Check Function ───
+function checkIngredient(input) {
+  const q = input.toLowerCase().trim();
+  if (!q) return null;
+
+  // Check safe exceptions FIRST
+  for (const item of SAFE_EXCEPTIONS) {
+    if (item.names.some(n => q.includes(n) || n.includes(q))) {
+      return { level: 'safe', icon: '✅', label: item.label, detail: item.detail, badge: 'Sicher', badgeClass: 'badge-safe' };
+    }
+  }
+
+  // Check deadly
+  for (const item of DEADLY) {
+    const excluded = item.exclude ? item.exclude.some(ex => q.includes(ex) || ex.includes(q)) : false;
+    if (!excluded && item.names.some(n => q.includes(n) || n.includes(q))) {
+      return { level: 'deadly', icon: '🚨', label: item.label, detail: item.detail, badge: 'Lebensgefahr', badgeClass: 'badge-deadly' };
+    }
+  }
+
+  // Check dangerous
+  for (const item of DANGEROUS) {
+    if (item.names.some(n => q.includes(n) || n.includes(q))) {
+      return { level: 'dangerous', icon: '⚠️', label: item.label, detail: item.detail, badge: 'Gefährlich', badgeClass: 'badge-dangerous' };
+    }
+  }
+
+  // Check caution
+  for (const item of CAUTION) {
+    if (item.names.some(n => q.includes(n) || n.includes(q))) {
+      return { level: 'caution', icon: '😐', label: item.label, detail: item.detail, badge: 'Vorsicht', badgeClass: 'badge-caution' };
+    }
+  }
+
+  // Check dish database
+  const dish = DISH_DATABASE.find(d =>
+    d.name.toLowerCase() === q || d.de.toLowerCase() === q ||
+    q.includes(d.name.toLowerCase()) || q.includes(d.de.toLowerCase()) ||
+    d.name.toLowerCase().includes(q) || d.de.toLowerCase().includes(q)
+  );
+  if (dish) {
+    const levelMap = {
+      deadly:    { icon:'🚨', badge:'Lebensgefahr', badgeClass:'badge-deadly' },
+      dangerous: { icon:'⚠️', badge:'Gefährlich', badgeClass:'badge-dangerous' },
+      caution:   { icon:'😐', badge:'Vorsicht', badgeClass:'badge-caution' },
+      safe:      { icon:'✅', badge:'Sicher', badgeClass:'badge-safe' }
+    };
+    const m = levelMap[dish.level];
+    return { level: dish.level, icon: m.icon, label: dish.name + ' / ' + dish.de, detail: dish.reason + (dish.triggers.length ? ' [' + dish.triggers.join(', ') + ']' : ''), badge: m.badge, badgeClass: m.badgeClass };
+  }
+
+  return null;
+}
+
+// ─── Render helpers ───
+function renderResult(result, query) {
+  if (!result) {
+    return `<div class="result-card safe">
+      <div class="result-icon">✅</div>
+      <div class="result-body">
+        <div class="result-title">${escapeHtml(query)} <span class="result-badge badge-safe">Nicht erkannt</span></div>
+        <div class="result-detail">Nicht in der Allergiedatenbank gefunden. Trotzdem Zutaten prüfen!</div>
+      </div>
+    </div>`;
+  }
+  return `<div class="result-card ${result.level}">
+    <div class="result-icon">${result.icon}</div>
+    <div class="result-body">
+      <div class="result-title">${escapeHtml(result.label)} <span class="result-badge ${result.badgeClass}">${result.badge}</span></div>
+      <div class="result-detail">${escapeHtml(result.detail)}</div>
+    </div>
+  </div>`;
+}
+
+function escapeHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+// ─── Single Input ───
+let singleDebounce;
+document.getElementById('singleInput').addEventListener('input', function() {
+  const v = this.value.trim();
+  document.getElementById('clearSingle').classList.toggle('show', v.length > 0);
+  clearTimeout(singleDebounce);
+  singleDebounce = setTimeout(() => {
+    const results = document.getElementById('singleResults');
+    const empty = document.getElementById('singleEmpty');
+    if (!v) { results.innerHTML = ''; empty.style.display = ''; return; }
+    empty.style.display = 'none';
+    const r = checkIngredient(v);
+    results.innerHTML = renderResult(r, v);
+  }, 200);
+});
+
+// ─── Multi Input ───
+let multiDebounce;
+document.getElementById('multiInput').addEventListener('input', function() {
+  const v = this.value.trim();
+  document.getElementById('clearMulti').classList.toggle('show', v.length > 0);
+  clearTimeout(multiDebounce);
+  multiDebounce = setTimeout(() => {
+    const results = document.getElementById('multiResults');
+    const empty = document.getElementById('multiEmpty');
+    if (!v) { results.innerHTML = ''; empty.style.display = ''; return; }
+    empty.style.display = 'none';
+    // Split by newlines, commas, semicolons
+    const items = v.split(/[\n,;]+/).map(s => s.trim()).filter(Boolean);
+    // Sort: deadly first, then dangerous, caution, safe/unknown
+    const levelOrder = { deadly: 0, dangerous: 1, caution: 2, safe: 3 };
+    const checked = items.map(item => {
+      const r = checkIngredient(item);
+      return { item, result: r, order: r ? (levelOrder[r.level] ?? 3) : 3 };
+    });
+    checked.sort((a, b) => a.order - b.order);
+    results.innerHTML = checked.map(c => renderResult(c.result, c.item)).join('');
+  }, 300);
+});
+
+// ─── Clear ───
+function clearInput(type) {
+  if (type === 'single') {
+    document.getElementById('singleInput').value = '';
+    document.getElementById('singleResults').innerHTML = '';
+    document.getElementById('singleEmpty').style.display = '';
+    document.getElementById('clearSingle').classList.remove('show');
+    document.getElementById('singleInput').focus();
+  } else {
+    document.getElementById('multiInput').value = '';
+    document.getElementById('multiResults').innerHTML = '';
+    document.getElementById('multiEmpty').style.display = '';
+    document.getElementById('clearMulti').classList.remove('show');
+    document.getElementById('multiInput').focus();
+  }
+}
+
+// ─── Tabs ───
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === id));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.toggle('active', t.id === 'tab-' + id));
+}
+
+// ─── Dishes Grid ───
+function renderDishes(filter) {
+  const grid = document.getElementById('dishesGrid');
+  const fq = (filter || '').toLowerCase();
+  const levelOrder = { deadly: 0, dangerous: 1, caution: 2, safe: 3 };
+  const levelLabels = {
+    deadly:    { emoji:'🚨', text:'Lebensgefahr', cls:'badge-deadly' },
+    dangerous: { emoji:'⚠️', text:'Gefährlich', cls:'badge-dangerous' },
+    caution:   { emoji:'😐', text:'Vorsicht', cls:'badge-caution' },
+    safe:      { emoji:'✅', text:'Sicher', cls:'badge-safe' }
+  };
+
+  let dishes = DISH_DATABASE;
+  if (fq) {
+    dishes = dishes.filter(d =>
+      d.name.toLowerCase().includes(fq) || d.de.toLowerCase().includes(fq) ||
+      d.reason.toLowerCase().includes(fq) || d.triggers.some(t => t.toLowerCase().includes(fq))
+    );
+  }
+
+  // Group by level
+  const groups = {};
+  for (const d of dishes) {
+    if (!groups[d.level]) groups[d.level] = [];
+    groups[d.level].push(d);
+  }
+
+  const sectionOrder = ['deadly','dangerous','caution','safe'];
+  const sectionTitles = { deadly:'🚨 Lebensgefahr', dangerous:'⚠️ Gefährlich', caution:'😐 Vorsicht', safe:'✅ Sicher' };
+
+  let html = '';
+  for (const level of sectionOrder) {
+    const items = groups[level];
+    if (!items || items.length === 0) continue;
+    html += `<div class="dish-section"><h3>${sectionTitles[level]}</h3>`;
+    for (const d of items) {
+      const l = levelLabels[d.level];
+      html += `<div class="dish-card" onclick="showDishDetail('${escapeHtml(d.name)}')">
+        <div class="dish-name">${escapeHtml(d.de)} <span class="dish-status result-badge ${l.cls}">${l.text}</span></div>
+        <div class="dish-detail">${escapeHtml(d.reason)}</div>
+      </div>`;
+    }
+    html += '</div>';
+  }
+
+  if (!html) {
+    html = '<div class="empty-state"><div class="icon">🍽️</div><p>Kein Gericht gefunden</p></div>';
+  }
+  grid.innerHTML = html;
+}
+
+function showDishDetail(name) {
+  // Jump to single check with the dish name
+  switchTab('single');
+  const input = document.getElementById('singleInput');
+  input.value = name;
+  input.dispatchEvent(new Event('input'));
+}
+
+function filterDishes() {
+  const v = document.getElementById('dishSearch').value;
+  renderDishes(v);
+}
+
+// Init dishes
+renderDishes();
+</script>
+</body>
+</html>
