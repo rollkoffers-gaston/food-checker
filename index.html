@@ -17,91 +17,125 @@
     --green:#2ed573;--green-bg:rgba(46,213,115,.12);--green-border:rgba(46,213,115,.3);
     --blue:#4facfe;--blue-bg:rgba(79,172,254,.12);
     --radius:12px;--radius-sm:8px;
+    --glow-blue:0 0 0 3px rgba(79,172,254,.15);
   }
   html{font-size:16px;-webkit-text-size-adjust:100%}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;padding:0 0 100px 0;overflow-x:hidden}
-  .container{max-width:600px;margin:0 auto;padding:16px}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    background:var(--bg);color:var(--text);min-height:100dvh;
+    padding:env(safe-area-inset-top) 0 calc(100px + env(safe-area-inset-bottom)) 0;
+    overflow-x:hidden;
+    background-image:radial-gradient(ellipse at 50% 0%,rgba(79,172,254,.04) 0%,transparent 60%),radial-gradient(ellipse at 80% 100%,rgba(46,213,115,.03) 0%,transparent 50%);
+    background-attachment:fixed;
+    letter-spacing:.01em;
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  }
+  .container{max-width:600px;margin:0 auto;padding:16px;padding-left:calc(16px + env(safe-area-inset-left));padding-right:calc(16px + env(safe-area-inset-right))}
 
-  /* Header */
-  header{text-align:center;padding:24px 0 8px}
-  header h1{font-size:1.6rem;font-weight:700;margin-bottom:4px}
-  header .subtitle{color:var(--text2);font-size:.85rem}
-  .emergency-banner{background:var(--red-bg);border:1px solid var(--red-border);border-radius:var(--radius-sm);padding:10px 14px;margin:12px 0;font-size:.8rem;color:var(--red);text-align:center;line-height:1.4}
-  .emergency-banner a{color:var(--red);font-weight:700;text-decoration:underline}
+  /* Header — glassmorphism */
+  header{text-align:center;padding:28px 20px 12px;margin:-16px -16px 0;margin-left:calc(-16px - env(safe-area-inset-left));margin-right:calc(-16px - env(safe-area-inset-right));background:linear-gradient(135deg,rgba(79,172,254,.08) 0%,rgba(46,213,115,.05) 50%,rgba(255,71,87,.05) 100%);border-bottom:1px solid rgba(255,255,255,.06);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+  header h1{font-size:1.7rem;font-weight:800;margin-bottom:6px;letter-spacing:-.02em;line-height:1.2}
+  header .subtitle{color:var(--text2);font-size:.85rem;font-weight:400;letter-spacing:.02em}
 
-  /* Tabs */
-  .tabs{display:flex;gap:4px;margin:16px 0 12px;background:var(--surface);border-radius:var(--radius);padding:4px}
-  .tab{flex:1;padding:10px 8px;border:none;background:transparent;color:var(--text2);font-size:.82rem;font-weight:500;border-radius:var(--radius-sm);cursor:pointer;transition:all .2s}
-  .tab.active{background:var(--surface3);color:var(--text)}
-  .tab:hover{color:var(--text)}
-  .tab-content{display:none}
+  /* Emergency banner — prominent but not alarming */
+  .emergency-banner{background:linear-gradient(135deg,rgba(255,71,87,.1) 0%,rgba(255,71,87,.06) 100%);border:1px solid var(--red-border);border-radius:var(--radius);padding:12px 16px;margin:16px 0;font-size:.8rem;color:#ff6b7a;text-align:center;line-height:1.5;position:relative;overflow:hidden}
+  .emergency-banner::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--red)}
+  .emergency-banner a{color:var(--red);font-weight:700;text-decoration:underline;text-underline-offset:2px}
+  .emergency-banner a:hover{color:#ff6b7a}
+  .emergency-banner a:active{opacity:.8}
+
+  /* Tabs — smooth transitions */
+  .tabs{display:flex;gap:4px;margin:16px 0 14px;background:var(--surface);border-radius:var(--radius);padding:4px;border:1px solid rgba(255,255,255,.04)}
+  .tab{flex:1;padding:12px 8px;min-height:44px;border:none;background:transparent;color:var(--text2);font-size:.82rem;font-weight:500;border-radius:var(--radius-sm);cursor:pointer;transition:all .25s ease;-webkit-tap-highlight-color:transparent;position:relative}
+  .tab.active{background:var(--surface3);color:var(--text);font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+  .tab:hover:not(.active){color:var(--text);background:rgba(255,255,255,.03)}
+  .tab:active{transform:scale(.97);opacity:.9}
+  .tab-content{display:none;animation:tabFadeIn .3s ease}
   .tab-content.active{display:block}
+  @keyframes tabFadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 
-  /* Input area */
+  /* Input area — glow on focus */
   .input-group{position:relative;margin-bottom:16px}
-  .input-group input,.input-group textarea{width:100%;background:var(--surface);border:2px solid var(--surface3);border-radius:var(--radius);padding:14px 16px;color:var(--text);font-size:1rem;font-family:inherit;outline:none;transition:border-color .2s}
-  .input-group textarea{min-height:120px;resize:vertical;line-height:1.5}
-  .input-group input:focus,.input-group textarea:focus{border-color:var(--blue)}
+  .input-group input,.input-group textarea{width:100%;background:var(--surface);border:2px solid var(--surface3);border-radius:var(--radius);padding:14px 16px;color:var(--text);font-size:1rem;font-family:inherit;outline:none;transition:border-color .25s ease,box-shadow .25s ease;line-height:1.5}
+  .input-group textarea{min-height:120px;resize:vertical}
+  .input-group input:focus,.input-group textarea:focus{border-color:var(--blue);box-shadow:var(--glow-blue)}
   .input-group input::placeholder,.input-group textarea::placeholder{color:var(--text3)}
-  .clear-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:var(--surface3);border:none;color:var(--text2);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:1.1rem;display:none;align-items:center;justify-content:center;line-height:1}
+  .clear-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:var(--surface3);border:none;color:var(--text2);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1.2rem;display:none;align-items:center;justify-content:center;line-height:1;transition:all .2s ease;-webkit-tap-highlight-color:transparent}
   .clear-btn.show{display:flex}
+  .clear-btn:hover{background:var(--surface2);color:var(--text)}
+  .clear-btn:active{transform:translateY(-50%) scale(.9)}
   .input-group:has(textarea) .clear-btn{top:20px;transform:none}
+  .input-group:has(textarea) .clear-btn:active{transform:scale(.9)}
 
   /* Results */
   .results{display:flex;flex-direction:column;gap:8px}
-  .result-card{border-radius:var(--radius);padding:14px 16px;display:flex;gap:12px;align-items:flex-start;animation:slideIn .25s ease}
+  .result-card{border-radius:var(--radius);padding:14px 16px;display:flex;gap:12px;align-items:flex-start;animation:slideIn .3s ease;transition:transform .2s ease}
   @keyframes slideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-  .result-card.deadly{background:var(--red-bg);border:1px solid var(--red-border)}
+  .result-card.deadly{background:var(--red-bg);border:1px solid var(--red-border);animation:slideIn .3s ease,deadlyPulse 3s ease-in-out infinite}
   .result-card.dangerous{background:var(--orange-bg);border:1px solid var(--orange-border)}
   .result-card.caution{background:var(--yellow-bg);border:1px solid var(--yellow-border)}
   .result-card.safe{background:var(--green-bg);border:1px solid var(--green-border)}
+  @keyframes deadlyPulse{0%,100%{border-color:var(--red-border);box-shadow:0 0 0 0 rgba(255,71,87,0)}50%{border-color:var(--red);box-shadow:0 0 12px 0 rgba(255,71,87,.15)}}
   .result-icon{font-size:1.5rem;flex-shrink:0;line-height:1.2}
   .result-body{flex:1;min-width:0}
-  .result-title{font-weight:600;font-size:.95rem;margin-bottom:2px}
-  .result-detail{font-size:.82rem;color:var(--text2);line-height:1.4}
+  .result-title{font-weight:600;font-size:.95rem;margin-bottom:3px;line-height:1.4}
+  .result-detail{font-size:.82rem;color:var(--text2);line-height:1.5}
   .deadly .result-title{color:var(--red)}
   .dangerous .result-title{color:var(--orange)}
   .caution .result-title{color:var(--yellow)}
   .safe .result-title{color:var(--green)}
-  .result-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+  .result-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.4px;vertical-align:middle}
   .badge-deadly{background:var(--red);color:#fff}
   .badge-dangerous{background:var(--orange);color:#000}
   .badge-caution{background:var(--yellow);color:#000}
   .badge-safe{background:var(--green);color:#000}
 
-  /* Dishes */
+  /* Dishes — improved hover/transitions */
   .dishes-grid{display:flex;flex-direction:column;gap:8px}
-  .dish-card{background:var(--surface);border:1px solid var(--surface3);border-radius:var(--radius);padding:14px 16px;cursor:pointer;transition:all .2s}
-  .dish-card:hover{border-color:var(--blue);background:var(--surface2)}
-  .dish-card:active{transform:scale(.98)}
-  .dish-name{font-weight:600;font-size:.95rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+  .dish-card{background:var(--surface);border:1px solid var(--surface3);border-radius:var(--radius);padding:14px 16px;min-height:44px;cursor:pointer;transition:all .25s ease;-webkit-tap-highlight-color:transparent}
+  .dish-card:hover{border-color:var(--blue);background:var(--surface2);transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.2)}
+  .dish-card:active{transform:scale(.98);box-shadow:none}
+  .dish-name{font-weight:600;font-size:.95rem;margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;line-height:1.4}
   .dish-status{font-size:.75rem;padding:2px 8px;border-radius:20px;font-weight:600}
-  .dish-detail{font-size:.8rem;color:var(--text2);line-height:1.4}
-  .dish-section{margin-bottom:16px}
-  .dish-section h3{font-size:.8rem;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;padding-left:4px}
+  .dish-detail{font-size:.8rem;color:var(--text2);line-height:1.5}
+  .dish-section{margin-bottom:20px}
+  .dish-section h3{font-size:.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;padding-left:4px;font-weight:600}
 
-  /* Legend */
-  .legend{background:var(--surface);border-radius:var(--radius);padding:16px;margin-top:16px}
-  .legend h3{font-size:.85rem;font-weight:600;margin-bottom:10px;color:var(--text2)}
-  .legend-item{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:.82rem}
-  .legend-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+  /* Legend — improved design */
+  .legend{background:var(--surface);border:1px solid rgba(255,255,255,.04);border-radius:var(--radius);padding:18px;margin-top:20px}
+  .legend h3{font-size:.82rem;font-weight:600;margin-bottom:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.6px}
+  .legend-item{display:flex;align-items:center;gap:12px;padding:8px 0;font-size:.82rem;line-height:1.4}
+  .legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;box-shadow:0 0 6px currentColor}
+  .legend-item:not(:last-child){border-bottom:1px solid rgba(255,255,255,.04)}
 
   /* Info section */
-  .info-card{background:var(--surface);border-radius:var(--radius);padding:16px;margin-top:12px}
-  .info-card h3{font-size:.9rem;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-  .info-card ul{padding-left:18px;font-size:.82rem;color:var(--text2);line-height:1.8}
-  .safe-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-  .safe-tag{background:var(--green-bg);border:1px solid var(--green-border);color:var(--green);padding:4px 10px;border-radius:20px;font-size:.75rem;font-weight:500}
+  .info-card{background:var(--surface);border:1px solid rgba(255,255,255,.04);border-radius:var(--radius);padding:18px;margin-top:12px;transition:border-color .2s ease}
+  .info-card:hover{border-color:rgba(255,255,255,.08)}
+  .info-card h3{font-size:.9rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px;letter-spacing:-.01em}
+  .info-card ul{padding-left:18px;font-size:.82rem;color:var(--text2);line-height:1.9}
+  .info-card li{padding:2px 0}
+  .safe-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .safe-tag{background:var(--green-bg);border:1px solid var(--green-border);color:var(--green);padding:6px 14px;border-radius:20px;font-size:.78rem;font-weight:500;transition:all .2s ease}
+  .safe-tag:hover{background:rgba(46,213,115,.18)}
 
-  /* Search filter for dishes */
-  .dish-search{margin-bottom:12px}
-  .dish-search input{width:100%;background:var(--surface);border:2px solid var(--surface3);border-radius:var(--radius);padding:10px 14px;color:var(--text);font-size:.9rem;outline:none;transition:border-color .2s}
-  .dish-search input:focus{border-color:var(--blue)}
+  /* Search filter for dishes — glow on focus */
+  .dish-search{margin-bottom:14px}
+  .dish-search input{width:100%;background:var(--surface);border:2px solid var(--surface3);border-radius:var(--radius);padding:12px 16px;min-height:44px;color:var(--text);font-size:.9rem;outline:none;transition:border-color .25s ease,box-shadow .25s ease}
+  .dish-search input:focus{border-color:var(--blue);box-shadow:var(--glow-blue)}
   .dish-search input::placeholder{color:var(--text3)}
 
-  .empty-state{text-align:center;padding:40px 20px;color:var(--text3)}
-  .empty-state .icon{font-size:2.5rem;margin-bottom:8px}
-  .empty-state p{font-size:.85rem;line-height:1.5}
+  .empty-state{text-align:center;padding:48px 20px;color:var(--text3)}
+  .empty-state .icon{font-size:2.5rem;margin-bottom:12px}
+  .empty-state p{font-size:.85rem;line-height:1.6}
+
+  /* Footer */
+  .footer{text-align:center;padding:32px 16px 16px;margin-top:24px;border-top:1px solid rgba(255,255,255,.04)}
+  .footer p{font-size:.72rem;color:var(--text3);letter-spacing:.03em;line-height:1.5}
+
+  /* Reduced motion preference */
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  }
 </style>
 </head>
 <body>
@@ -194,26 +228,42 @@
     </div>
     <div class="legend">
       <h3>Farblegende</h3>
-      <div class="legend-item"><span class="legend-dot" style="background:var(--red)"></span> Lebensgefahr — Niemals essen</div>
-      <div class="legend-item"><span class="legend-dot" style="background:var(--orange)"></span> Gefährlich — Schwellung/Atemnot möglich</div>
-      <div class="legend-item"><span class="legend-dot" style="background:var(--yellow)"></span> Vorsicht — Verdauungsprobleme möglich</div>
-      <div class="legend-item"><span class="legend-dot" style="background:var(--green)"></span> Sicher — Kann bedenkenlos gegessen werden</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--red);color:var(--red)"></span> Lebensgefahr — Niemals essen</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--orange);color:var(--orange)"></span> Gefährlich — Schwellung/Atemnot möglich</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--yellow);color:var(--yellow)"></span> Vorsicht — Verdauungsprobleme möglich</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--green);color:var(--green)"></span> Sicher — Kann bedenkenlos gegessen werden</div>
     </div>
   </div>
+
+  <footer class="footer">
+    <p>Food Safety Checker v2.0</p>
+  </footer>
 </div>
 
 <script>
 // ─── Allergy Database ───
 const DEADLY = [
   {
-    names: ['ei','eier','egg','eggs','eigelb','eiweiß','eiweiss','yolk','egg white','egg yolk','hühnerei','huehnerei','vollei','trockenei','flüssigei','eipulver','egg powder'],
+    names: ['ei','eier','egg','eggs','eigelb','eiweiß','eiweiss','yolk','egg white','egg yolk','hühnerei','huehnerei','vollei','trockenei','flüssigei','eipulver','egg powder',
+            'eiersalat','eierpfannkuchen','eiernockerl','eierspätzle','eierspaetzle','eierkuchen','eierschwammerl','eierteigwaren','eiernudel','eiernudeln',
+            'omelette','omelet','omelett','frittata','meringue','baiser','eierlikör','eierlikor',
+            'spiegelei','rührei','ruehrei','setzei','verlorenes ei','pochiertes ei',
+            'scotch egg','egg wash','egg nog','eggnog','eierstich',
+            'ei-pasta','eierpunsch','eierspeise','eiertätsch','eiertatsch'],
     label: 'Eier / Eggs',
     detail: 'Lebensbedrohliche Allergie — in jeder Form vermeiden!'
   },
   {
     names: ['walnuss','walnüsse','walnut','walnuts','haselnuss','haselnüsse','hazelnut','hazelnuts','cashew','cashews','cashewkern','pistazie','pistazien','pistachio','pistachios',
             'pekanuss','pecan','pecans','macadamia','paranuss','brazil nut','brazil nuts','nuss','nüsse','nuesse','nut','nuts','tree nut','tree nuts','nussmischung','mixed nuts',
-            'maronen','kastanien','chestnut','chestnuts','kokosnuss','coconut','pinienkern','pinienkerne','pine nut','pine nuts','nougat','nutella','gianduja','praline','marzipan'],
+            'maronen','kastanien','chestnut','chestnuts','kokosnuss','coconut','pinienkern','pinienkerne','pine nut','pine nuts','nougat','nutella','gianduja','praline','marzipan',
+            'nussecke','nussecken','nusskuchen','nusszopf','nusstorte','nussschnecke','nussschnecken','nussstrudel','nusskipferl','nussbeugel',
+            'nussbrot','nussmus','nussmilch','nusspaste','nusscreme','nussaufstrich','nusslikör','nusslikor',
+            'walnusskern','walnusskerne','haselnusskern','haselnusskerne','cashewmus',
+            'pistazieneis','pistaziencreme','pistazienmus',
+            'haselnusslikör','haselnusscreme','haselnussmus',
+            'pekanusseis','macadamianuss','macadamianüsse',
+            'nussriegel','nussstange','nussknacker','nussfüllung','nussfuellung'],
     exclude: ['erdnuss','erdnüsse','erdnuesse','peanut','peanuts','mandel','mandeln','almond','almonds','muskatnuss','muskat','nutmeg','kokosnuss','coconut','kokos','kokosmilch','kokosflocken','kokosöl','coconut milk','coconut oil','coconut cream','coconut flakes'],
     label: 'Nüsse / Nuts',
     detail: 'Lebensbedrohliche Allergie — ALLE Nüsse außer Erdnüsse & Mandeln!'
@@ -223,36 +273,56 @@ const DEADLY = [
 const DANGEROUS = [
   {
     names: ['huhn','hühnchen','hähnchen','haehnchen','chicken','hendl','poulet','hühnerbrühe','chicken broth','chicken stock','geflügel','gefluegel','poultry',
-            'pute','truthahn','turkey','ente','duck','gans','goose','wachtel','quail','fasan','pheasant','hühnerbrust','chicken breast','hühnerkeule','chicken thigh','chicken wing','hühnerflügel'],
+            'pute','truthahn','turkey','ente','duck','gans','goose','wachtel','quail','fasan','pheasant','hühnerbrust','chicken breast','hühnerkeule','chicken thigh','chicken wing','hühnerflügel',
+            'hühnerleber','chicken liver','hühnerschenkel','hühnersuppe','chicken soup','chicken nugget','chicken tender',
+            'putenbrust','putenschnitzel','putenkeule','putensteak','putengeschnetzeltes',
+            'entenkeule','entenbrust','entenconfit','duck breast','duck confit',
+            'gänsebraten','gaensebraten','gänsekeule','gaensekeule','gänseleber','goose liver',
+            'backhendl','brathähnchen','brathahnchen','grillhähnchen','grillhuhn',
+            'hühnerfrikassee','chicken fricassee','hähnchenbrust','haehnchenbrust','hähnchenschenkel',
+            'geflügelsalat','geflügelleber','geflügelbrühe','geflügelfond',
+            'chicken satay','chicken tikka','tandoori chicken','rotisserie chicken'],
     label: 'Geflügel / Poultry',
     detail: 'Kann Halsschwellung und Atemnot verursachen!'
   },
   {
-    names: ['avocado','guacamole'],
+    names: ['avocado','guacamole','avocados','avocadocreme','avocadoaufstrich','avocado toast','avocadoöl','avocado oil','avocadodip'],
     label: 'Avocado',
     detail: 'Kann Halsschwellung und Atemnot verursachen!'
   },
   {
-    names: ['kiwi','kiwis','kiwifruit'],
+    names: ['kiwi','kiwis','kiwifruit','kiwisaft','kiwismoothie','kiwi juice','gold kiwi','green kiwi'],
     label: 'Kiwi',
     detail: 'Kann Halsschwellung und Atemnot verursachen!'
   },
   {
-    names: ['aubergine','auberginen','eggplant','eggplants'],
+    names: ['aubergine','auberginen','eggplant','eggplants','melanzani','auberginenpüree','auberginenpuree','auberginencreme','auberginensalat',
+            'auberginenkaviar','auberginenauflauf','imam bayildi'],
     label: 'Aubergine / Eggplant',
     detail: 'Kann Halsschwellung und Atemnot verursachen!'
   },
   {
-    names: ['banane','bananen','banana','bananas','plantain'],
+    names: ['banane','bananen','banana','bananas','plantain','plantains','bananensaft','bananenmilch','bananensplit','bananeneis',
+            'bananenchips','bananenbrot','bananenkuchen','bananenpfannkuchen','bananenshake','banana split','banana shake','banana smoothie',
+            'kochbanane','kochbananen'],
     label: 'Banane / Banana',
     detail: 'Kann Halsschwellung und Atemnot verursachen!'
   },
   {
     names: ['milch','milk','vollmilch','whole milk','magermilch','skim milk','buttermilch','buttermilk','sahne','cream','rahm','schlagsahne','whipped cream',
             'schmand','sour cream','saure sahne','crème fraîche','creme fraiche','joghurt','yoghurt','yogurt','quark','kefir','molke','whey','laktose','lactose',
-            'milchpulver','milk powder','kondensmilch','condensed milk','evaporated milk','butter','ghee','käse','kaese','cheese',
-            'ricotta','mascarpone','mozzarella','parmesan','gouda','emmentaler','cheddar','brie','camembert','feta','gruyère','gruyere',
-            'cream cheese','frischkäse','frischkaese','hüttenkäse','cottage cheese','ziegenkäse','goat cheese','schafskäse','sheep cheese'],
+            'milchpulver','milk powder','kondensmilch','condensed milk','evaporated milk','butter','ghee',
+            'milchschokolade','milk chocolate','milchreis','rice pudding','milchshake',
+            'buttercreme','butterkeks','butterbrot','buttergebäck','buttergebaeck','butterschmalz',
+            'sahnetorte','sahnesoße','sahnesosse','sahneeis','sahnebonbon','sahnelikör','sahnehaube',
+            'joghurtsauce','joghurtdressing','joghurteis','fruchtjoghurt','naturjoghurt','trinkjoghurt',
+            'milchkaramell','milchcreme','milchbrötchen','milchbroetchen','milchsuppe','milchkaffee',
+            'quarkbällchen','quarkbaellchen','quarkkuchen','quarkstrudel','quarktasche',
+            'kakao','hot chocolate','heiße schokolade','heisse schokolade','trinkschokolade',
+            'bechamel','béchamel','bechamelsauce','béchamelsauce','white sauce','weiße sauce','weisse sauce',
+            'topfen','obers','schlagobers','kaffeesahne','sprühsahne',
+            'half and half','heavy cream','double cream','clotted cream','single cream',
+            'dulce de leche','karamell','caramel sauce'],
     label: 'Milch / Milk',
     detail: 'Kann Halsschwellung und Atemnot verursachen!'
   }
@@ -263,28 +333,61 @@ const CAUTION = [
     names: ['käse','kaese','cheese','hartkäse','hard cheese','weichkäse','soft cheese','schmelzkäse','processed cheese',
             'ricotta','mascarpone','mozzarella','parmesan','gouda','emmentaler','cheddar','brie','camembert','feta','gruyère','gruyere',
             'cream cheese','frischkäse','frischkaese','hüttenkäse','cottage cheese','ziegenkäse','goat cheese','schafskäse','sheep cheese',
-            'raclette','fondue'],
+            'raclette','fondue',
+            'appenzeller','tilsiter','bergkäse','bergkaese','butterkäse','butterkaese','edamer','gorgonzola','roquefort','stilton',
+            'pecorino','provolone','halloumi','burrata','scamorza','taleggio','fontina','münster','muenster','limburger',
+            'handkäse','handkaese','harzer','harzer käse','harzer kaese','mainzer käse','mainzer kaese',
+            'obatzda','obazda','liptauer','käsespätzle','kaesespaetzle','käsesoße','kaesesosse',
+            'käsekuchen','kaesekuchen','cheesecake','käsebrötchen','kaesebrot','käsebrot',
+            'käsefondue','käseplatte','kaeseplatte','käseaufschnitt','käsecreme',
+            'string cheese','american cheese','swiss cheese','blue cheese','blauschimmelkäse','blauschimmelkaese',
+            'queso','paneer','manchego'],
     label: 'Käse / Cheese',
     detail: 'Kleine Mengen OK — größere Mengen können Verdauungsprobleme verursachen'
   },
   {
-    names: ['knoblauch','garlic','zwiebel','zwiebeln','onion','onions','schalotte','shallot','lauch','leek','frühlingszwiebel','spring onion','schnittlauch','chives'],
+    names: ['knoblauch','garlic','zwiebel','zwiebeln','onion','onions','schalotte','shallot','lauch','leek','frühlingszwiebel','spring onion','schnittlauch','chives',
+            'knoblauchzehe','knoblauchpulver','garlic powder','knoblauchbutter','garlic butter','knoblauchbrot','garlic bread',
+            'knoblauchsoße','knoblauchsosse','garlic sauce','aioli','knoblauchöl','garlic oil',
+            'zwiebelringe','onion rings','zwiebelsuppe','onion soup','röstzwiebeln','roestzwiebeln','fried onions',
+            'zwiebelkuchen','zwiebelschmalz','perlzwiebel','silberzwiebel',
+            'lauchsuppe','porree','bärlauch','baerlauch','wild garlic',
+            'frühlingszwiebeln','fruehlingszwiebel','green onion','green onions','scallion','scallions'],
     label: 'Zwiebeln/Knoblauch (High FODMAP)',
     detail: 'IBS/Reizdarm — kann in größeren Mengen Probleme verursachen'
   },
   {
-    names: ['bohne','bohnen','bean','beans','linse','linsen','lentil','lentils','kichererbse','kichererbsen','chickpea','chickpeas','erbse','erbsen','pea','peas'],
+    names: ['bohne','bohnen','bean','beans','linse','linsen','lentil','lentils','kichererbse','kichererbsen','chickpea','chickpeas','erbse','erbsen','pea','peas',
+            'kidney bohne','kidneybohne','kidney bean','schwarze bohne','black bean','weiße bohne','weisse bohne','white bean',
+            'limabohne','lima bean','sojabohne','soybean','edamame','fava bohne','fava bean','ackerbohne',
+            'rote linse','rote linsen','red lentil','grüne linse','grüne linsen','green lentil','beluga linse',
+            'bohneneintopf','linsensuppe','lentil soup','erbsensuppe','pea soup','erbsenpüree','erbsenpuree',
+            'baked beans','refried beans','chili con carne','dal','dhal','daal',
+            'hülsenfrüchte','huelsenfruechte','legume','legumes'],
     label: 'Hülsenfrüchte (High FODMAP)',
     detail: 'IBS/Reizdarm — kann Blähungen und Beschwerden verursachen'
   },
   {
     names: ['apfel','äpfel','apple','apples','birne','birnen','pear','pears','mango','mangos','wassermelone','watermelon','kirsche','kirschen','cherry','cherries',
-            'pfirsich','pfirsiche','peach','peaches','pflaume','pflaumen','plum','plums','nektarine','nectarine','aprikose','apricot'],
+            'pfirsich','pfirsiche','peach','peaches','pflaume','pflaumen','plum','plums','nektarine','nectarine','aprikose','apricot',
+            'apfelmus','applesauce','apfelsaft','apple juice','apfelkuchen','apple pie','apfelstrudel',
+            'birnenkompott','birnensaft','birnenmus',
+            'mangosaft','mangopüree','mangopuree','mango chutney','mangolassi',
+            'kirschsaft','kirschkompott','kirschkuchen','sauerkirsche','süßkirsche',
+            'pfirsichsaft','pfirsichkompott','pflaumenkompott','pflaumenmus','zwetschge','zwetschgen','zwetschgenkuchen',
+            'aprikosenkonfitüre','aprikosenkonfit','aprikosenmarmelade','marille','marillen','marillenknödel','marillenknoedel',
+            'trockenobst','dried fruit','trockenfrüchte','trockenfruechte','dörrpflaume','doerrpflaume','prune','prunes'],
     label: 'Obst (High FODMAP)',
     detail: 'IBS/Reizdarm — kann in größeren Mengen Beschwerden verursachen'
   },
   {
-    names: ['weizen','wheat','roggen','rye','gerste','barley','dinkel','spelt','brot','bread','brötchen','roll','semmel','toast','pizza','pasta','nudel','nudeln','noodles','couscous','bulgur'],
+    names: ['weizen','wheat','roggen','rye','gerste','barley','dinkel','spelt','brot','bread','brötchen','roll','semmel','toast','pizza','pasta','nudel','nudeln','noodles','couscous','bulgur',
+            'weizenmehl','wheat flour','roggenmehl','rye flour','dinkelmehl','spelt flour','vollkornmehl','wholemeal flour',
+            'weißbrot','weissbrot','white bread','vollkornbrot','whole wheat bread','schwarzbrot','pumpernickel','ciabatta','focaccia','baguette',
+            'semmelbrösel','semmelbroesel','breadcrumbs','paniermehl','panko',
+            'pizzateig','pizza dough','nudelteig','blätterteig','blaetterteig','puff pastry','mürbteig','muerbteig','hefeteig',
+            'tortellini','ravioli','lasagne','lasagna','spaghetti','penne','fusilli','tagliatelle','fettuccine','gnocchi',
+            'croissant','pretzel','breze','brezel','brezn','laugenbrezel','laugenbreze'],
     label: 'Getreide/Weizen (FODMAP)',
     detail: 'IBS — große Mengen Weizen können Probleme machen. Kleine Mengen meist OK.'
   }
@@ -292,12 +395,19 @@ const CAUTION = [
 
 const SAFE_EXCEPTIONS = [
   {
-    names: ['erdnuss','erdnüsse','erdnuesse','peanut','peanuts','erdnussbutter','peanut butter','erdnussöl','peanut oil'],
+    names: ['erdnuss','erdnüsse','erdnuesse','peanut','peanuts','erdnussbutter','peanut butter','erdnussöl','peanut oil',
+            'erdnussmus','erdnusscreme','erdnussflips','erdnusssauce','peanut sauce','erdnusskerne','erdnusskern',
+            'geröstete erdnüsse','geroestete erdnuesse','roasted peanuts','gesalzene erdnüsse','salted peanuts',
+            'erdnussriegel','peanut bar','erdnussdip','peanut dip'],
     label: 'Erdnüsse / Peanuts ✅',
     detail: 'Sicher! Erdnüsse sind KEINE Baumnüsse — kein Risiko.'
   },
   {
-    names: ['mandel','mandeln','almond','almonds','mandelmehl','almond flour','mandelmilch','almond milk','mandelmus','almond butter','mandelöl','almond oil'],
+    names: ['mandel','mandeln','almond','almonds','mandelmehl','almond flour','mandelmilch','almond milk','mandelmus','almond butter','mandelöl','almond oil',
+            'mandelkern','mandelkerne','mandelblättchen','mandelblaettchen','sliced almonds','gehobelte mandeln','gemahlene mandeln','ground almonds',
+            'mandelkuchen','mandelgebäck','mandelgebaeck','mandelkrokant','mandelsplitter','mandelhörnchen','mandelhoernchen',
+            'mandelpaste','mandelcreme','mandelmilch','mandelpüree','mandelpuree','mandeldrink',
+            'amaretto','amaretti','marzipan','marzipankartoffel','persipan'],
     label: 'Mandeln / Almonds ✅',
     detail: 'Sicher! Mandeln sind eine bestätigte Ausnahme.'
   }
@@ -305,7 +415,9 @@ const SAFE_EXCEPTIONS = [
 
 // ─── Hidden Ingredients in Common Dishes ───
 const DISH_DATABASE = [
-  // Deadly risks
+  // ═══ DEADLY — Lebensgefahr ═══
+
+  // International classics
   {name:'Caesar Salad',de:'Caesar Salat',level:'deadly',reason:'Enthält Ei (im Dressing) und oft Parmesan (Milch)',triggers:['Eier','Milch']},
   {name:'Carbonara',de:'Carbonara',level:'deadly',reason:'Enthält Ei (Eigelb), Käse (Parmesan/Pecorino) und oft Speck',triggers:['Eier','Milch']},
   {name:'Tiramisu',de:'Tiramisu',level:'deadly',reason:'Enthält rohe Eier, Mascarpone (Milch)',triggers:['Eier','Milch']},
@@ -330,17 +442,84 @@ const DISH_DATABASE = [
   {name:'Baklava',de:'Baklava',level:'deadly',reason:'Enthält Nüsse (Walnüsse, Pistazien)!',triggers:['Nüsse']},
   {name:'Brownie',de:'Brownie',level:'deadly',reason:'Enthält Eier, Butter, oft Walnüsse',triggers:['Eier','Milch','Nüsse']},
   {name:'Granola / Müsli',de:'Granola / Müsli',level:'deadly',reason:'Enthält oft diverse Nüsse! Einzelne Zutaten prüfen.',triggers:['Nüsse']},
-  {name:'Marzipan',de:'Marzipan',level:'safe',reason:'Besteht aus Mandeln — Mandeln sind sicher! ✅ Aber Vorsicht: kann in Mischprodukten mit anderen Nüssen vorkommen.',triggers:['Mandeln (sicher)']},
   {name:'Eierlikör',de:'Eierlikör',level:'deadly',reason:'Enthält Eier und oft Sahne!',triggers:['Eier','Milch']},
   {name:'Aioli',de:'Aioli',level:'deadly',reason:'Traditionell mit Ei (wie Mayonnaise)',triggers:['Eier']},
   {name:'Eggs Benedict',de:'Eggs Benedict',level:'deadly',reason:'Pochiertes Ei + Sauce Hollandaise (Ei + Butter)',triggers:['Eier','Milch']},
   {name:'Soufflé',de:'Soufflé',level:'deadly',reason:'Hauptbestandteil: Eier',triggers:['Eier']},
+  {name:'Pad Thai',de:'Pad Thai',level:'deadly',reason:'Enthält oft Ei! Erdnüsse sind OK. Ohne Ei bestellen!',triggers:['Eier','Erdnüsse (sicher)']},
+  {name:'Chicken Caesar Wrap',de:'Chicken Caesar Wrap',level:'deadly',reason:'Hähnchen + Caesar Dressing (Ei) + Parmesan (Milch)',triggers:['Geflügel','Eier','Milch']},
+  {name:'Lasagne',de:'Lasagne',level:'deadly',reason:'Enthält Eier (Nudelplatten), Béchamel (Milch), Käse.',triggers:['Eier','Milch']},
+  {name:'Frittata',de:'Frittata',level:'deadly',reason:'Italienisches Omelette — Hauptbestandteil: Eier!',triggers:['Eier']},
+  {name:'Shakshuka',de:'Shakshuka',level:'deadly',reason:'Eier in Tomatensauce pochiert! Kann auch Käse enthalten.',triggers:['Eier','Milch']},
+  {name:'Scotch Egg',de:'Scotch Egg',level:'deadly',reason:'Ei umhüllt von Hackfleisch und paniert (mit Ei)!',triggers:['Eier']},
+  {name:'Tortilla Española',de:'Spanische Tortilla',level:'deadly',reason:'Kartoffel-Omelette — enthält Eier!',triggers:['Eier']},
+  {name:'Croque Monsieur',de:'Croque Monsieur',level:'deadly',reason:'Toast mit Käse (Milch) und Béchamelsauce (Milch, evtl. Ei).',triggers:['Eier','Milch']},
+  {name:'Croque Madame',de:'Croque Madame',level:'deadly',reason:'Croque Monsieur mit Spiegelei obendrauf!',triggers:['Eier','Milch']},
+  {name:'Tamagoyaki',de:'Tamagoyaki',level:'deadly',reason:'Japanisches Ei-Omelett — Hauptbestandteil: Eier!',triggers:['Eier']},
+  {name:'Naan Bread',de:'Naan-Brot',level:'deadly',reason:'Enthält Joghurt (Milch) und oft Ei! Auch Butter/Ghee.',triggers:['Eier','Milch']},
+  {name:'Croissant',de:'Croissant',level:'deadly',reason:'Enthält Butter (Milch) und oft Ei!',triggers:['Eier','Milch']},
+  {name:'Crème brûlée',de:'Crème brûlée',level:'deadly',reason:'Enthält Eigelb und Sahne!',triggers:['Eier','Milch']},
+  {name:'Profiteroles',de:'Profiteroles / Windbeutel',level:'deadly',reason:'Brandteig enthält Eier! Füllung: Sahne (Milch).',triggers:['Eier','Milch']},
+  {name:'Eclairs',de:'Eclairs',level:'deadly',reason:'Brandteig enthält Eier! Füllung: Pudding/Sahne (Milch).',triggers:['Eier','Milch']},
+  {name:'Remoulade',de:'Remoulade',level:'deadly',reason:'Enthält Ei (Mayo-Basis)!',triggers:['Eier']},
+  {name:'Strammer Max',de:'Strammer Max',level:'deadly',reason:'Brot mit Spiegelei! Klassisches deutsches Gericht.',triggers:['Eier']},
+  {name:'Mac and Cheese',de:'Makkaroni mit Käse',level:'deadly',reason:'Enthält Käse, Milch, Butter! Manchmal Ei.',triggers:['Milch','Eier']},
 
-  // Dangerous
+  // German / Austrian / Swiss deadly dishes
+  {name:'Kaiserschmarrn',de:'Kaiserschmarrn',level:'deadly',reason:'Enthält Eier und Milch! Traditionelles österreichisches Gericht aus Eierteig.',triggers:['Eier','Milch']},
+  {name:'Wiener Schnitzel',de:'Wiener Schnitzel',level:'deadly',reason:'Panade enthält Ei! Traditionell Kalbfleisch in Ei-Mehl-Brösel-Panade.',triggers:['Eier']},
+  {name:'Schnitzel (paniert)',de:'Schnitzel (paniert)',level:'deadly',reason:'Panade enthält Ei! Egal ob Schwein, Kalb oder Pute — die Panade hat Ei.',triggers:['Eier']},
+  {name:'Sachertorte',de:'Sachertorte',level:'deadly',reason:'Enthält Eier, Butter (Milch). Originalrezept ohne Nüsse, aber Varianten können Nüsse enthalten.',triggers:['Eier','Milch']},
+  {name:'Linzer Torte',de:'Linzer Torte',level:'deadly',reason:'Enthält Nüsse (Haselnüsse/Walnüsse)! Klassisch mit gemahlenen Nüssen im Teig. Auch Eier und Butter.',triggers:['Nüsse','Eier','Milch']},
+  {name:'Nussschnecke',de:'Nussschnecke',level:'deadly',reason:'Enthält Nüsse (Haselnüsse/Walnüsse) in der Füllung! Auch Eier und Butter im Teig.',triggers:['Nüsse','Eier','Milch']},
+  {name:'Nusskuchen',de:'Nusskuchen',level:'deadly',reason:'Hauptbestandteil: Nüsse! Enthält auch Eier und Butter.',triggers:['Nüsse','Eier','Milch']},
+  {name:'Nussecke',de:'Nussecke',level:'deadly',reason:'Enthält Nüsse (Haselnüsse) und Eier!',triggers:['Nüsse','Eier','Milch']},
+  {name:'Nusszopf',de:'Nusszopf',level:'deadly',reason:'Hefeteig mit Nussfüllung! Enthält auch Eier und Milch.',triggers:['Nüsse','Eier','Milch']},
+  {name:'Nusstorte (Engadiner)',de:'Engadiner Nusstorte',level:'deadly',reason:'Schweizer Spezialität mit Walnüssen, Eier, Sahne!',triggers:['Nüsse','Eier','Milch']},
+  {name:'Nussknödel',de:'Nussknödel',level:'deadly',reason:'Nussfüllung! Enthält auch Eier.',triggers:['Nüsse','Eier']},
+  {name:'Semmelknödel',de:'Semmelknödel',level:'deadly',reason:'Enthält Eier und oft Milch! Traditionell mit Ei gebunden.',triggers:['Eier','Milch']},
+  {name:'Germknödel',de:'Germknödel',level:'deadly',reason:'Hefeteig mit Eier und Butter. Serviert mit Vanillesauce (Milch).',triggers:['Eier','Milch']},
+  {name:'Apfelstrudel',de:'Apfelstrudel',level:'deadly',reason:'Strudelteig kann Ei enthalten. Oft mit Butter bestrichen. Manche Rezepte haben Nüsse.',triggers:['Eier','Milch']},
+  {name:'Topfenstrudel',de:'Topfenstrudel',level:'deadly',reason:'Enthält Topfen/Quark (Milch) und Eier!',triggers:['Eier','Milch']},
+  {name:'Palatschinken',de:'Palatschinken',level:'deadly',reason:'Österreichische Pfannkuchen — Eier und Milch im Teig!',triggers:['Eier','Milch']},
+  {name:'Salzburger Nockerl',de:'Salzburger Nockerl',level:'deadly',reason:'Besteht hauptsächlich aus Eischnee (Eier) und Zucker! Auch Butter.',triggers:['Eier','Milch']},
+  {name:'Buchteln',de:'Buchteln',level:'deadly',reason:'Hefeteig mit Eier, Milch und Butter!',triggers:['Eier','Milch']},
+  {name:'Marillenknödel',de:'Marillenknödel',level:'deadly',reason:'Topfenteig (Quark/Milch) mit Ei! Gefüllt mit Marille.',triggers:['Eier','Milch']},
+  {name:'Zwetschgenknödel',de:'Zwetschgenknödel',level:'deadly',reason:'Kartoffel- oder Topfenteig mit Ei! Gefüllt mit Zwetschgen.',triggers:['Eier','Milch']},
+  {name:'Dampfnudeln',de:'Dampfnudeln',level:'deadly',reason:'Hefeteig mit Eier und Milch. Serviert mit Vanillesauce.',triggers:['Eier','Milch']},
+  {name:'Bienenstich',de:'Bienenstich',level:'deadly',reason:'Enthält Eier im Teig, Sahne/Pudding-Füllung (Milch), Mandeldecke (Mandeln sicher!).',triggers:['Eier','Milch']},
+  {name:'Schwarzwälder Kirschtorte',de:'Schwarzwälder Kirschtorte',level:'deadly',reason:'Enthält Eier, Sahne (Milch), Schokolade.',triggers:['Eier','Milch']},
+  {name:'Donauwelle',de:'Donauwelle',level:'deadly',reason:'Enthält Eier, Butter, Sahne, Schokolade. Manchmal Nüsse.',triggers:['Eier','Milch']},
+  {name:'Frankfurter Kranz',de:'Frankfurter Kranz',level:'deadly',reason:'Enthält Eier, Buttercreme (Milch). Oft mit Nüssen/Krokant dekoriert!',triggers:['Eier','Milch','Nüsse']},
+  {name:'Baumkuchen',de:'Baumkuchen',level:'deadly',reason:'Enthält sehr viele Eier und Butter! Deutsche Spezialität.',triggers:['Eier','Milch']},
+  {name:'Käsesahnetorte',de:'Käsesahnetorte',level:'deadly',reason:'Enthält Eier, Quark (Milch), Sahne (Milch)!',triggers:['Eier','Milch']},
+  {name:'Eierpfannkuchen',de:'Eierpfannkuchen',level:'deadly',reason:'Pfannkuchen aus Eier und Milch!',triggers:['Eier','Milch']},
+  {name:'Eiersalat',de:'Eiersalat',level:'deadly',reason:'Hauptbestandteil: gekochte Eier mit Mayo (auch Ei)!',triggers:['Eier']},
+  {name:'Spätzle',de:'Spätzle',level:'deadly',reason:'Schwäbische Eiernudeln — Hauptbestandteil ist Ei!',triggers:['Eier']},
+  {name:'Käsespätzle',de:'Käsespätzle',level:'deadly',reason:'Spätzle (Ei!) mit Käse (Milch) überbacken!',triggers:['Eier','Milch']},
+  {name:'Maultaschen',de:'Maultaschen',level:'deadly',reason:'Schwäbische Teigtaschen — Nudelteig enthält Ei! Füllung kann auch Ei enthalten.',triggers:['Eier']},
+  {name:'Cordon Bleu',de:'Cordon Bleu',level:'deadly',reason:'Paniertes Schnitzel mit Käse und Schinken — Ei in Panade + Käse (Milch)!',triggers:['Eier','Milch']},
+  {name:'Fleischpflanzerl',de:'Fleischpflanzerl / Frikadellen',level:'deadly',reason:'Hackfleischbällchen enthalten Ei als Bindemittel! Auch oft Semmel mit Milch.',triggers:['Eier','Milch']},
+  {name:'Frikadellen',de:'Frikadellen / Buletten',level:'deadly',reason:'Hackfleischbällchen enthalten Ei als Bindemittel!',triggers:['Eier']},
+  {name:'Königsberger Klopse',de:'Königsberger Klopse',level:'deadly',reason:'Fleischklöße mit Ei, Kapernsoße enthält oft Sahne und Eigelb!',triggers:['Eier','Milch']},
+  {name:'Labskaus',de:'Labskaus',level:'deadly',reason:'Norddeutsches Gericht — enthält oft Spiegelei obendrauf!',triggers:['Eier']},
+  {name:'Kartoffelsalat (norddeutsch)',de:'Kartoffelsalat (norddeutsch)',level:'deadly',reason:'Norddeutscher Kartoffelsalat mit Mayonnaise — enthält Ei!',triggers:['Eier']},
+  {name:'Lebkuchen',de:'Lebkuchen',level:'deadly',reason:'Enthält oft Nüsse (Haselnüsse) und Eier! Zuckerguss kann Eiweiß enthalten.',triggers:['Nüsse','Eier']},
+  {name:'Stollen',de:'Stollen / Christstollen',level:'deadly',reason:'Enthält Eier, Butter (Milch). Oft auch Nüsse.',triggers:['Eier','Milch']},
+  {name:'Zimtsterne',de:'Zimtsterne',level:'deadly',reason:'Enthält gemahlene Nüsse (Haselnüsse/Mandeln) und Eiweiß!',triggers:['Nüsse','Eier']},
+  {name:'Vanillekipferl',de:'Vanillekipferl',level:'deadly',reason:'Enthält gemahlene Nüsse (Haselnüsse/Walnüsse), Butter, oft Eigelb.',triggers:['Nüsse','Eier','Milch']},
+  {name:'Spritzgebäck',de:'Spritzgebäck',level:'deadly',reason:'Enthält Eier und Butter.',triggers:['Eier','Milch']},
+  {name:'Spaghettieis',de:'Spaghettieis',level:'deadly',reason:'Vanilleeis (Milch, evtl. Ei) mit Erdbeersoße und weißer Schokolade.',triggers:['Eier','Milch']},
+  {name:'Bircher Müesli',de:'Bircher Müesli',level:'deadly',reason:'Schweizer Müsli mit Nüssen (Haselnüsse) und oft Joghurt/Milch!',triggers:['Nüsse','Milch']},
+  {name:'Älplermagronen',de:'Älplermagronen',level:'deadly',reason:'Schweizer Makkaroni mit Käse (Milch), Sahne, oft Ei!',triggers:['Eier','Milch']},
+  {name:'Rösti mit Ei',de:'Rösti mit Spiegelei',level:'deadly',reason:'Rösti selbst sicher, aber mit Spiegelei serviert — Ei!',triggers:['Eier']},
+
+  // ═══ DANGEROUS — Gefährlich ═══
+
+  // International dangerous
   {name:'Chicken Nuggets',de:'Chicken Nuggets',level:'dangerous',reason:'Geflügel! Panade kann auch Ei enthalten.',triggers:['Geflügel','Eier']},
   {name:'Chicken Curry',de:'Hähnchen Curry',level:'dangerous',reason:'Geflügel! Kann auch Joghurt/Sahne enthalten.',triggers:['Geflügel','Milch']},
   {name:'Club Sandwich',de:'Club Sandwich',level:'dangerous',reason:'Enthält Hähnchen und oft Mayonnaise (Ei)',triggers:['Geflügel','Eier']},
-  {name:'Chicken Caesar Wrap',de:'Chicken Caesar Wrap',level:'deadly',reason:'Hähnchen + Caesar Dressing (Ei) + Parmesan (Milch)',triggers:['Geflügel','Eier','Milch']},
   {name:'Duck / Ente',de:'Ente / Entenbraten',level:'dangerous',reason:'Geflügel!',triggers:['Geflügel']},
   {name:'Turkey Sandwich',de:'Puten-Sandwich',level:'dangerous',reason:'Geflügel!',triggers:['Geflügel']},
   {name:'Guacamole',de:'Guacamole',level:'dangerous',reason:'Hauptbestandteil: Avocado!',triggers:['Avocado']},
@@ -352,19 +531,115 @@ const DISH_DATABASE = [
   {name:'Baba Ghanoush',de:'Baba Ghanoush',level:'dangerous',reason:'Hauptbestandteil: Aubergine!',triggers:['Aubergine']},
   {name:'Milkshake',de:'Milchshake',level:'dangerous',reason:'Milch! Oft auch Eis (kann Ei enthalten)',triggers:['Milch','Eier']},
   {name:'Cappuccino / Latte',de:'Cappuccino / Latte',level:'dangerous',reason:'Enthält Milch!',triggers:['Milch']},
+  {name:'Butter Chicken',de:'Butter Chicken',level:'dangerous',reason:'Geflügel! Enthält Butter und Sahne (Milch).',triggers:['Geflügel','Milch']},
+  {name:'Chicken Tikka Masala',de:'Chicken Tikka Masala',level:'dangerous',reason:'Geflügel! Enthält Joghurt und Sahne (Milch).',triggers:['Geflügel','Milch']},
+  {name:'Tandoori Chicken',de:'Tandoori Chicken',level:'dangerous',reason:'Geflügel! Mariniert in Joghurt (Milch).',triggers:['Geflügel','Milch']},
+  {name:'Tom Kha Gai',de:'Tom Kha Gai',level:'dangerous',reason:'Thailändische Hühnersuppe — Geflügel!',triggers:['Geflügel']},
+  {name:'Peking-Ente',de:'Peking-Ente',level:'dangerous',reason:'Ente = Geflügel!',triggers:['Geflügel']},
+  {name:'Hühnersuppe',de:'Hühnersuppe',level:'dangerous',reason:'Geflügel! Oft auch mit Eiernudeln.',triggers:['Geflügel','Eier']},
+  {name:'Pho Ga',de:'Pho Ga (Hühner-Pho)',level:'dangerous',reason:'Vietnamesische Hühnersuppe — Geflügel!',triggers:['Geflügel']},
+  {name:'Satay (Hähnchen)',de:'Satay / Saté (Hähnchen)',level:'dangerous',reason:'Hühnchen = Geflügel! Erdnusssauce ist sicher.',triggers:['Geflügel']},
+  {name:'Pizza Margherita',de:'Pizza Margherita',level:'dangerous',reason:'Enthält Mozzarella (Milch)! Teig meist ohne Ei.',triggers:['Milch']},
+  {name:'Pizza (allgemein)',de:'Pizza',level:'dangerous',reason:'Fast immer mit Käse (Milch)! Teig prüfen auf Ei.',triggers:['Milch']},
+  {name:'Risotto',de:'Risotto',level:'dangerous',reason:'Enthält oft Butter und Parmesan (Milch)!',triggers:['Milch']},
+  {name:'Gratin / Auflauf',de:'Gratin / Auflauf',level:'dangerous',reason:'Überbacken mit Käse (Milch)! Oft auch Sahne und Ei.',triggers:['Milch','Eier']},
+  {name:'Kartoffelgratin',de:'Kartoffelgratin',level:'dangerous',reason:'Kartoffeln mit Sahne und Käse überbacken (Milch)!',triggers:['Milch']},
+  {name:'Nachos',de:'Nachos',level:'dangerous',reason:'Oft mit Käse überbacken (Milch)! Sour Cream (Milch). Guacamole (Avocado)!',triggers:['Milch','Avocado']},
+  {name:'Panna Cotta',de:'Panna Cotta',level:'dangerous',reason:'Enthält Sahne (Milch)! Traditionell ohne Ei.',triggers:['Milch']},
+  {name:'Fondue (Schokolade)',de:'Schokofondue',level:'dangerous',reason:'Schokolade + Sahne (Milch)! Oft mit Banane zum Dippen.',triggers:['Milch']},
+  {name:'Chicken Shawarma',de:'Chicken Shawarma',level:'dangerous',reason:'Geflügel! Oft mit Joghurtsauce (Milch).',triggers:['Geflügel','Milch']},
 
-  // Safe dishes
-  {name:'Pad Thai',de:'Pad Thai',level:'deadly',reason:'Enthält oft Ei! Erdnüsse sind OK. Ohne Ei bestellen!',triggers:['Eier','Erdnüsse (sicher)']},
+  // German / Austrian / Swiss dangerous
+  {name:'Döner Kebab',de:'Döner Kebab',level:'dangerous',reason:'Vorsicht bei Joghurtsauce (Milch)! Fleisch (Kalb/Lamm) sicher, aber Sauce prüfen. Hähnchen-Döner = Geflügel!',triggers:['Milch','Geflügel']},
+  {name:'Dürüm',de:'Dürüm',level:'dangerous',reason:'Wie Döner — Sauce prüfen! Joghurtsauce (Milch). Hähnchen = Geflügel.',triggers:['Milch','Geflügel']},
+  {name:'Pide',de:'Pide',level:'dangerous',reason:'Türkische Teigschiffchen — oft mit Käse (Milch) oder Ei gefüllt! Variante prüfen.',triggers:['Milch','Eier']},
+  {name:'Flammkuchen',de:'Flammkuchen',level:'dangerous',reason:'Schmand/Crème fraîche (Milch). Ohne Ei, aber Milchprodukt!',triggers:['Milch']},
+  {name:'Obatzda',de:'Obatzda',level:'dangerous',reason:'Bayerischer Käseaufstrich — Camembert + Butter (Milch)!',triggers:['Milch']},
+  {name:'Butterbreze',de:'Butterbreze',level:'dangerous',reason:'Breze mit Butter (Milch)!',triggers:['Milch']},
+  {name:'Tzatziki',de:'Tzatziki',level:'dangerous',reason:'Joghurt-basiert (Milch)!',triggers:['Milch']},
+  {name:'Fondue (Käse)',de:'Käsefondue',level:'dangerous',reason:'Geschmolzener Käse (Milch)! Gruyère, Emmentaler etc.',triggers:['Milch']},
+  {name:'Raclette',de:'Raclette',level:'dangerous',reason:'Geschmolzener Raclettekäse (Milch)!',triggers:['Milch']},
+  {name:'Zürcher Geschnetzeltes',de:'Zürcher Geschnetzeltes',level:'dangerous',reason:'Kalbsgeschnetzeltes mit Sahnesauce (Milch)!',triggers:['Milch']},
+
+  // ═══ SAFE — Sicher ═══
+
+  {name:'Marzipan',de:'Marzipan',level:'safe',reason:'Besteht aus Mandeln — Mandeln sind sicher! Aber Vorsicht: kann in Mischprodukten mit anderen Nüssen vorkommen.',triggers:['Mandeln (sicher)']},
   {name:'Steak',de:'Steak (Rind)',level:'safe',reason:'Rindfleisch ist sicher. Auf Beilagen achten!',triggers:[]},
   {name:'Grilled Fish',de:'Gegrillter Fisch',level:'safe',reason:'Fisch ist grundsätzlich sicher. Auf Sauce/Panade achten!',triggers:[]},
-  {name:'Rice / Reis',de:'Reis',level:'safe',reason:'Reis pur ist sicher ✅',triggers:[]},
+  {name:'Rice / Reis',de:'Reis',level:'safe',reason:'Reis pur ist sicher.',triggers:[]},
   {name:'Pommes Frites',de:'Pommes Frites',level:'safe',reason:'Kartoffeln + Öl = sicher. Vorsicht bei Mayo als Dip!',triggers:[]},
   {name:'Hummus',de:'Hummus',level:'safe',reason:'Kichererbsen + Tahini (Sesam) — grundsätzlich sicher. Große Mengen: FODMAP beachten.',triggers:[]},
   {name:'Spaghetti Aglio e Olio',de:'Spaghetti Aglio e Olio',level:'safe',reason:'Trockene Pasta (ohne Ei) + Knoblauch + Olivenöl. Sicher wenn Pasta eifrei! Knoblauch: FODMAP beachten.',triggers:[]},
-  {name:'Bruschetta',de:'Bruschetta',level:'safe',reason:'Brot + Tomaten + Olivenöl. Sicher! ✅',triggers:[]},
-  {name:'Edamame',de:'Edamame',level:'safe',reason:'Sojabohnen — sicher ✅',triggers:[]},
-  {name:'Sashimi',de:'Sashimi',level:'safe',reason:'Roher Fisch pur — sicher ✅',triggers:[]},
+  {name:'Bruschetta',de:'Bruschetta',level:'safe',reason:'Brot + Tomaten + Olivenöl. Sicher!',triggers:[]},
+  {name:'Edamame',de:'Edamame',level:'safe',reason:'Sojabohnen — sicher.',triggers:[]},
+  {name:'Sashimi',de:'Sashimi',level:'safe',reason:'Roher Fisch pur — sicher.',triggers:[]},
+  {name:'Rösti',de:'Rösti',level:'safe',reason:'Geriebene Kartoffeln, gebraten. Grundsätzlich sicher! Auf Beilagen achten.',triggers:[]},
+  {name:'Leberkäse',de:'Leberkäse / Fleischkäse',level:'safe',reason:'Trotz des Namens: KEIN Käse und KEINE Eier! Besteht aus Rind/Schwein. Sicher!',triggers:[]},
+  {name:'Bratwurst',de:'Bratwurst',level:'safe',reason:'Schweinefleisch — grundsätzlich sicher! Auf Beilagen/Saucen achten.',triggers:[]},
+  {name:'Currywurst',de:'Currywurst',level:'safe',reason:'Schweinewurst mit Currysoße — meist sicher! Manche Soßen können Joghurt enthalten.',triggers:[]},
+  {name:'Brezen',de:'Brezen / Bretzel',level:'safe',reason:'Laugengebäck — grundsätzlich sicher! Vorsicht bei Butter-Breze (Milch).',triggers:[]},
+  {name:'Weißwurst',de:'Weißwurst',level:'safe',reason:'Kalbfleisch + Schweinefleisch. Grundsätzlich sicher! Süßer Senf ist OK.',triggers:[]},
+  {name:'Bockwurst',de:'Bockwurst',level:'safe',reason:'Schweine-/Rindfleisch — grundsätzlich sicher!',triggers:[]},
+  {name:'Wiener Würstchen',de:'Wiener Würstchen / Frankfurter',level:'safe',reason:'Schweine-/Rindfleisch — grundsätzlich sicher!',triggers:[]},
+  {name:'Sauerkraut',de:'Sauerkraut',level:'safe',reason:'Fermentierter Kohl — sicher!',triggers:[]},
+  {name:'Kartoffelknödel',de:'Kartoffelknödel',level:'safe',reason:'Kartoffelknödel ohne Ei sind sicher! Nachfragen ob Ei im Teig.',triggers:[]},
+  {name:'Schweinshaxe',de:'Schweinshaxe',level:'safe',reason:'Schweinefleisch — sicher! Auf Beilagen achten.',triggers:[]},
+  {name:'Sauerbraten',de:'Sauerbraten',level:'safe',reason:'Eingelegtes Rindfleisch — grundsätzlich sicher! Soße prüfen (kann Sahne enthalten).',triggers:[]},
+  {name:'Rouladen',de:'Rouladen / Rinderrouladen',level:'safe',reason:'Rindfleisch mit Gurke, Senf, Speck — grundsätzlich sicher!',triggers:[]},
+  {name:'Gulasch',de:'Gulasch',level:'safe',reason:'Rind-/Schweinefleisch mit Paprika — grundsätzlich sicher! Manche Rezepte mit Sahne.',triggers:[]},
+  {name:'Eintopf',de:'Eintopf',level:'safe',reason:'Je nach Rezept — Grundzutaten (Kartoffeln, Gemüse, Fleisch) sicher. Zutaten prüfen!',triggers:[]},
+  {name:'Grünkohl',de:'Grünkohl mit Pinkel',level:'safe',reason:'Grünkohl mit Wurst — grundsätzlich sicher!',triggers:[]},
+  {name:'Matjes',de:'Matjes',level:'safe',reason:'Eingelegter Hering — sicher! Auf Sahnesauce achten (Milch).',triggers:[]},
+  {name:'Fischbrötchen',de:'Fischbrötchen',level:'safe',reason:'Fisch im Brötchen — grundsätzlich sicher! Vorsicht bei Remoulade (enthält Ei!).',triggers:[]},
+  {name:'Senf',de:'Senf / Mustard',level:'safe',reason:'Senf ist sicher!',triggers:[]},
+  {name:'Ketchup',de:'Ketchup',level:'safe',reason:'Ketchup ist sicher!',triggers:[]},
+  {name:'Kartoffelsalat (süddeutsch)',de:'Kartoffelsalat (süddeutsch)',level:'safe',reason:'Süddeutscher Kartoffelsalat mit Brühe und Essig — meist sicher!',triggers:[]},
+  {name:'Tafelspitz',de:'Tafelspitz',level:'safe',reason:'Gekochtes Rindfleisch — sicher! Meerrettichsoße meist ohne Ei.',triggers:[]},
+  {name:'Schweinebraten',de:'Schweinebraten',level:'safe',reason:'Schweinefleisch — sicher! Auf Knödel/Soße achten.',triggers:[]},
+  {name:'Falafel',de:'Falafel',level:'safe',reason:'Kichererbsen — grundsätzlich sicher! FODMAP beachten. Auf Saucen achten.',triggers:[]},
+  {name:'Gyros',de:'Gyros',level:'safe',reason:'Schweinefleisch — sicher! Vorsicht bei Tzatziki (Milch/Joghurt).',triggers:[]},
+  {name:'Lahmacun',de:'Lahmacun',level:'safe',reason:'Türkische Pizza mit Hackfleisch — grundsätzlich sicher!',triggers:[]},
+  {name:'Hot Dog',de:'Hot Dog',level:'safe',reason:'Wurst im Brötchen — grundsätzlich sicher! Auf Saucen achten (Remoulade = Ei!).',triggers:[]},
+  {name:'Tacos (Fleisch)',de:'Tacos (Fleisch)',level:'safe',reason:'Rindfleisch/Schwein in Maistortilla — grundsätzlich sicher! Auf Saucen achten.',triggers:[]},
+  {name:'Pho Bo',de:'Pho Bo (Rinder-Pho)',level:'safe',reason:'Vietnamesische Rindersuppe — grundsätzlich sicher!',triggers:[]},
+  {name:'Sommerrollen',de:'Sommerrollen / Spring Rolls',level:'safe',reason:'Reispapier + Gemüse + Garnelen — sicher! Erdnusssauce ist OK.',triggers:[]},
+  {name:'Tom Yum',de:'Tom Yum Suppe',level:'safe',reason:'Thailändische Suppe — grundsätzlich sicher!',triggers:[]},
+  {name:'Gazpacho',de:'Gazpacho',level:'safe',reason:'Kalte Gemüsesuppe — sicher!',triggers:[]},
+  {name:'Pulled Pork',de:'Pulled Pork',level:'safe',reason:'Schweinefleisch — sicher! Auf Beilagen achten.',triggers:[]},
+  {name:'Spare Ribs',de:'Spare Ribs',level:'safe',reason:'Schweinerippchen — sicher!',triggers:[]},
+  {name:'Tortilla Chips',de:'Tortilla Chips',level:'safe',reason:'Mais + Öl — sicher! Auf Dips achten.',triggers:[]},
+  {name:'Bibimbap (ohne Ei)',de:'Bibimbap (ohne Ei)',level:'safe',reason:'Koreanisches Reisgericht — ohne Ei bestellen! Grundzutaten sicher.',triggers:[]},
 ];
+
+// ─── Smart Matching for German Compound Words ───
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function smartMatch(query, name) {
+  if (query === name) return true;
+  if (query.length < 2 || name.length < 2) return false;
+
+  // Word boundary match for multi-word inputs
+  // e.g., "scrambled eggs" contains "eggs", "3. eier" contains "eier"
+  const esc = escapeRegex(name);
+  const wbRe = new RegExp('(?:^|[\\s,;/&+.:!?()\\[\\]])' + esc + '(?:$|[\\s,;/&+.:!?()\\[\\]])', 'i');
+  if (wbRe.test(query)) return true;
+
+  // German compound word matching:
+  // "spiegelei" ends with "ei" → match (Spiegel+Ei)
+  // "eierkuchen" starts with "eier" → match (Eier+Kuchen)
+  // "rindfleisch" does NOT start/end with "ei" → no match
+  if (query.startsWith(name) || query.endsWith(name)) return true;
+
+  // Reverse: partial typing matches allergen name prefix
+  // "wal" → "walnuss" starts with "wal" → match
+  // NOTE: name.endsWith(query) removed — causes cross-category false positives
+  // e.g., "milch" matching "nussmilch" in nuts, "butter" matching "erdnussbutter"
+  if (name.startsWith(query)) return true;
+
+  return false;
+}
 
 // ─── Core Check Function ───
 function checkIngredient(input) {
@@ -373,29 +648,29 @@ function checkIngredient(input) {
 
   // Check safe exceptions FIRST
   for (const item of SAFE_EXCEPTIONS) {
-    if (item.names.some(n => q.includes(n) || n.includes(q))) {
+    if (item.names.some(n => smartMatch(q, n))) {
       return { level: 'safe', icon: '✅', label: item.label, detail: item.detail, badge: 'Sicher', badgeClass: 'badge-safe' };
     }
   }
 
   // Check deadly
   for (const item of DEADLY) {
-    const excluded = item.exclude ? item.exclude.some(ex => q.includes(ex) || ex.includes(q)) : false;
-    if (!excluded && item.names.some(n => q.includes(n) || n.includes(q))) {
+    const excluded = item.exclude ? item.exclude.some(ex => smartMatch(q, ex)) : false;
+    if (!excluded && item.names.some(n => smartMatch(q, n))) {
       return { level: 'deadly', icon: '🚨', label: item.label, detail: item.detail, badge: 'Lebensgefahr', badgeClass: 'badge-deadly' };
     }
   }
 
   // Check dangerous
   for (const item of DANGEROUS) {
-    if (item.names.some(n => q.includes(n) || n.includes(q))) {
+    if (item.names.some(n => smartMatch(q, n))) {
       return { level: 'dangerous', icon: '⚠️', label: item.label, detail: item.detail, badge: 'Gefährlich', badgeClass: 'badge-dangerous' };
     }
   }
 
   // Check caution
   for (const item of CAUTION) {
-    if (item.names.some(n => q.includes(n) || n.includes(q))) {
+    if (item.names.some(n => smartMatch(q, n))) {
       return { level: 'caution', icon: '😐', label: item.label, detail: item.detail, badge: 'Vorsicht', badgeClass: 'badge-caution' };
     }
   }
@@ -473,11 +748,21 @@ document.getElementById('multiInput').addEventListener('input', function() {
     const empty = document.getElementById('multiEmpty');
     if (!v) { results.innerHTML = ''; empty.style.display = ''; return; }
     empty.style.display = 'none';
-    // Split by newlines, commas, semicolons
-    const items = v.split(/[\n,;]+/).map(s => s.trim()).filter(Boolean);
+    // Split by newlines, commas, semicolons, bullets, "und"/"and"
+    const items = v.split(/[\n\r,;•·|]+|\s+und\s+|\s+and\s+/)
+      .map(s => s.replace(/^\s*[\d]+[.):\s]*/, '').replace(/^\s*[-–—]\s*/, '').trim())
+      .filter(s => s.length > 0);
+    // Deduplicate (case-insensitive, keep first occurrence)
+    const seen = new Set();
+    const unique = items.filter(item => {
+      const key = item.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
     // Sort: deadly first, then dangerous, caution, safe/unknown
     const levelOrder = { deadly: 0, dangerous: 1, caution: 2, safe: 3 };
-    const checked = items.map(item => {
+    const checked = unique.map(item => {
       const r = checkIngredient(item);
       return { item, result: r, order: r ? (levelOrder[r.level] ?? 3) : 3 };
     });
